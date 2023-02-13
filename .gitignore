@@ -24,6 +24,7 @@
 
 # VS
 .vs/
+.vscode/
 
 # CMake
 CMakeCache.txt

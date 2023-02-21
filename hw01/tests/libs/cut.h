@@ -49,7 +49,7 @@ Should not harm elsewhere.
 
 
 # if defined(__linux__)
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/linux-define.h
+// 1hc substitution of /builds/pb071/cut/src/linux-define.h
 #ifndef CUT_LINUX_DEFINE_H
 #define CUT_LINUX_DEFINE_H
 
@@ -70,7 +70,7 @@ Should not harm elsewhere.
 
 #endif // CUT_LINUX_DEFINE_H
 # elif defined(__APPLE__) || defined(__unix)
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/unix-define.h
+// 1hc substitution of /builds/pb071/cut/src/unix-define.h
 #ifndef CUT_UNIX_DEFINE_H
 #define CUT_UNIX_DEFINE_H
 
@@ -92,7 +92,7 @@ Should not harm elsewhere.
 
 #endif // CUT_UNIX_DEFINE_H
 # elif defined(_WIN32)
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/windows-define.h
+// 1hc substitution of /builds/pb071/cut/src/windows-define.h
 #ifndef CUT_WINDOWS_DEFINE_H
 #define CUT_WINDOWS_DEFINE_H
 
@@ -138,12 +138,12 @@ Should not harm elsewhere.
 
 # define ASSERT_FILE(f, content) do {                                           \
     if (!cut_File(f, content)) {                                                \
-        cut_Stop("content of file '" #f "' is not equal", __FILE__, __LINE__);           \
+        cut_Stop("content of file is not equal", __FILE__, __LINE__);           \
     } } while(0)
 
 # define ASSERT_BINARY_FILE(f, bytes) do {                                      \
     if (!cut_BinaryFile(f, sizeof(bytes), bytes)) {                             \
-        cut_Stop("content of file '" #f "' is not equal", __FILE__, __LINE__);           \
+        cut_Stop("content of file is not equal", __FILE__, __LINE__);           \
     } } while(0)
 
 # define CHECK(e) do { if (!(e)) {                                              \
@@ -152,12 +152,12 @@ Should not harm elsewhere.
 
 # define CHECK_FILE(f, content) do {                                            \
     if (!cut_File(f, content)) {                                                \
-        cut_Check("content of file '" #f "' is not equal", __FILE__, __LINE__);          \
+        cut_Check("content of file is not equal", __FILE__, __LINE__);          \
     } } while(0)
 
 # define CHECK_BINARY_FILE(f, bytes) do {                                            \
     if (!cut_BinaryFile(f, sizeof(bytes), bytes)) {                                                \
-        cut_Check("content of file '" #f "' is not equal", __FILE__, __LINE__);          \
+        cut_Check("content of file is not equal", __FILE__, __LINE__);          \
     } } while(0)
 
 # define INPUT_FILE(name)                                                       \
@@ -167,7 +167,7 @@ Should not harm elsewhere.
         (cut_Input(strlen(str), str))
 
 # define INPUT_BYTES(array)                                                     \
-        (cut_Input(sizeof(array), array))
+        (cut_InputBytes(sizeof(array), array))
 
 # define TEST(name)                                                             \
     void cut_instance_ ## name(int *, int, int);                                \
@@ -222,6 +222,7 @@ void cut_RegisterGlobalTearDown(cut_GlobalTear instance);
 int cut_File(FILE *file, const char *content);
 int cut_BinaryFile(FILE *file, size_t size, const unsigned char *bytes);
 void cut_InputFile(const char *name);
+void cut_InputBytes(size_t size, const unsigned char *bytes);
 void cut_Input(size_t size, const char *bytes);
 CUT_NORETURN void cut_Stop(const char *text, const char *file, size_t line);
 void cut_Check(const char *text, const char *file, size_t line);
@@ -317,7 +318,7 @@ enum cut_Colors {
     cut_RED_COLOR
 };
 
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/globals.h
+// 1hc substitution of /builds/pb071/cut/src/globals.h
 #ifndef CUT_GLOBALS_H
 #define CUT_GLOBALS_H
 
@@ -336,7 +337,6 @@ CUT_PRIVATE int cut_pipeRead = 0;
 CUT_PRIVATE int cut_originalStdIn = 0;
 CUT_PRIVATE int cut_originalStdOut = 0;
 CUT_PRIVATE int cut_originalStdErr = 0;
-CUT_PRIVATE int cut_inputFeedPID = 0;
 CUT_PRIVATE FILE *cut_stdout = NULL;
 CUT_PRIVATE FILE *cut_stderr = NULL;
 CUT_PRIVATE jmp_buf cut_executionPoint;
@@ -347,8 +347,14 @@ CUT_PRIVATE char *cut_localMessageCursor = NULL;
 CUT_PRIVATE cut_GlobalTear cut_globalTearUp = NULL;
 CUT_PRIVATE cut_GlobalTear cut_globalTearDown = NULL;
 
+#if defined(_WIN32)
+CUT_PRIVATE int cut_tmpInput = -1;
+#elif defined(__linux__) || defined(__unix) || defined(__APPLE__)
+CUT_PRIVATE int cut_inputFeedPID = 0;
+#endif
+
 #endif // CUT_GLOBALS_H
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/fragments.h
+// 1hc substitution of /builds/pb071/cut/src/fragments.h
 #ifndef CUT_FRAGMENTS_H
 #define CUT_FRAGMENTS_H
 
@@ -578,7 +584,7 @@ CUT_PRIVATE size_t cut_FragmentReceiveProcessed(cut_FragmentReceiveStatus *statu
 }
 
 #endif
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/declarations.h
+// 1hc substitution of /builds/pb071/cut/src/declarations.h
 #ifndef CUT_DECLARATIONS_H
 #define CUT_DECLARATIONS_H
 
@@ -639,6 +645,7 @@ CUT_PRIVATE void cut_RunUnit(int testId, int subtest, struct cut_UnitResult *res
 int cut_File(FILE *file, const char *content);
 int cut_BinaryFile(FILE *file, size_t size, const unsigned char *bytes);
 void cut_InputFile(const char *name);
+void cut_InputBytes(size_t size, const unsigned char *bytes);
 void cut_Input(size_t size, const char *bytes);
 CUT_PRIVATE void cut_ReapInputFeed();
 CUT_PRIVATE int cut_IsDebugger();
@@ -646,7 +653,7 @@ CUT_PRIVATE int cut_IsTerminalOutput();
 CUT_PRIVATE int cut_PrintColorized(enum cut_Colors color, const char *text);
 
 #endif // CUT_DECLARATIONS_H
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/messages.h
+// 1hc substitution of /builds/pb071/cut/src/messages.h
 #ifndef CUT_MESSAGES_H
 #define CUT_MESSAGES_H
 
@@ -997,7 +1004,7 @@ CUT_PRIVATE int cut_SetExceptionResult(struct cut_UnitResult *result,
 }
 
 #endif // CUT_MESSAGES_H
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/execution.h
+// 1hc substitution of /builds/pb071/cut/src/execution.h
 #ifndef CUT_EXECUTION_H
 #define CUT_EXECUTION_H
 
@@ -1433,10 +1440,26 @@ cleanup:
 }
 
 #endif // CUT_EXECUTION_H
+// 1hc substitution of /builds/pb071/cut/src/common.h
+#ifndef CUT_COMMON_H
+#define CUT_COMMON_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int cut_File(FILE *f, const char *content) {
+    return cut_BinaryFile(f, strlen(content), (const unsigned char *)content);
+}
+
+void cut_InputBytes(size_t size, const unsigned char *bytes) {
+    cut_Input(size, (const char *) bytes);
+}
+
+#endif // CUT_COMMON_H
 
 #  if defined(__linux__)
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/linux.h
+// 1hc substitution of /builds/pb071/cut/src/linux.h
 #ifndef CUT_LINUX_H
 #define CUT_LINUX_H
 
@@ -1449,7 +1472,7 @@ cleanup:
 # include <fcntl.h>
 # include <signal.h>
 
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/unix-common.h
+// 1hc substitution of /builds/pb071/cut/src/unix-common.h
 #if !defined(CUT_UNIX_H) && !defined(CUT_LINUX_H)
 #   warning "this header should be included from unix.h or linux."
 #endif
@@ -1641,9 +1664,8 @@ cleanup:
     return result;
 }
 
-int cut_BinaryFile(FILE *f, size_t size, const unsigned char *content) {
+int cut_BinaryFile(FILE *f, size_t length, const unsigned char *content) {
     int result = 0;
-    size_t length = size;
     size_t fileLength;
     int fd = fileno(f);
     fflush(f);
@@ -1658,9 +1680,6 @@ cleanup:
     return result;
 }
 
-int cut_File(FILE *f, const char *content) {
-    return cut_BinaryFile(f, strlen(content), (const unsigned char *)content);
-}
 
 void cut_InputFile(const char *name) {
     if (freopen(name, "r", stdin) == NULL)
@@ -1732,7 +1751,6 @@ void cut_Input(size_t size, const char *bytes) {
     // std* symbols cannot be (portably) assigned to, freopen() must be
     // used here
     cut_InputFile("/proc/self/fd/0");
-
     close(pipefd[0]);
     close(pipefd[1]);
 }
@@ -1789,7 +1807,7 @@ CUT_PRIVATE int cut_PrintColorized(enum cut_Colors color, const char *text) {
 }
 #endif // CUT_LINUX_H
 #  elif defined(__APPLE__) || defined(__unix)
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/unix.h
+// 1hc substitution of /builds/pb071/cut/src/unix.h
 #ifndef CUT_UNIX_H
 #define CUT_UNIX_H
 
@@ -1803,7 +1821,7 @@ CUT_PRIVATE int cut_PrintColorized(enum cut_Colors color, const char *text) {
 # include <errno.h>
 # include <assert.h>
 
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/unix-common.h
+// 1hc substitution of /builds/pb071/cut/src/unix-common.h
 #if !defined(CUT_UNIX_H) && !defined(CUT_LINUX_H)
 #   warning "this header should be included from unix.h or linux."
 #endif
@@ -1993,9 +2011,8 @@ cleanup:
     return result;
 }
 
-int cut_BinaryFile(FILE *f, size_t size, const unsigned char *content) {
+int cut_BinaryFile(FILE *f, size_t length, const unsigned char *content) {
     int result = 0;
-    size_t length = strlen(content);
     size_t fileLength;
     int fd = fileno(f);
     fflush(f);
@@ -2008,10 +2025,6 @@ int cut_BinaryFile(FILE *f, size_t size, const unsigned char *content) {
 cleanup:
     free(buf);
     return result;
-}
-
-int cut_File(FILE *f, const char *content) {
-    return cut_BinaryFile(f, strlen(content), (const unsigned char *)content);
 }
 
 void cut_InputFile(const char *name) {
@@ -2078,10 +2091,11 @@ void cut_Input(size_t size, const char *bytes) {
     if (dup2(pipefd[0], STDIN_FILENO) == -1)
         cut_FatalExit("cannot replace standard input");
 
-    // freopen() doesn't work here, but this does
+    // freopen() doesn't work here, but this does.
+    // Unix does not necessarily have procfs, Mac has fpurge() though
+    // that can be used here to revitalize stdin as much as possible
     fpurge(stdin);
     clearerr(stdin);
-
     close(pipefd[0]);
     close(pipefd[1]);
 }
@@ -2129,7 +2143,7 @@ CUT_PRIVATE int cut_PrintColorized(enum cut_Colors color, const char *text) {
 }
 #endif // CUT_UNIX_H
 #  elif defined(_WIN32)
-// 1hc substitution of /home/david/fi/teacher/pb071/cut/src/windows.h
+// 1hc substitution of /builds/pb071/cut/src/windows.h
 #ifndef CUT_WINDOWS_H
 #define CUT_WINDOWS_H
 
@@ -2206,7 +2220,7 @@ CUT_PRIVATE int cut_PreRun() {
 
     HANDLE timer = NULL;
     if (cut_arguments.timeout) {
-        CreateTimerQueueTimer(&timer, NULL, cut_TimerCallback, NULL, 
+        CreateTimerQueueTimer(&timer, NULL, cut_TimerCallback, NULL,
                               cut_arguments.timeout * 1000, 0, WT_EXECUTEONLYONCE) || cut_FatalExit("cannot create timer");
     }
 
@@ -2232,6 +2246,10 @@ CUT_PRIVATE void cut_RunUnit(int testId, int subtest, struct cut_UnitResult *res
     saAttr.bInheritHandle = TRUE;
     saAttr.lpSecurityDescriptor = NULL;
 
+    HANDLE parentStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    if (parentStdInput == INVALID_HANDLE_VALUE)
+        cut_FatalExit("Cannot get standard input handle");
+
     HANDLE childOutWrite, childOutRead;
 
     CreatePipe(&childOutRead, &childOutWrite, &saAttr, 0);
@@ -2246,13 +2264,15 @@ CUT_PRIVATE void cut_RunUnit(int testId, int subtest, struct cut_UnitResult *res
     startInfo.cb = sizeof(startInfo);
     startInfo.dwFlags |= STARTF_USESTDHANDLES;
     startInfo.hStdOutput = childOutWrite;
+    // we need to have open standard input for input-replacing macros.
+    startInfo.hStdInput = parentStdInput;
 
     const char *fmtString = "\"%s\" --test %i --subtest %i --timeout %i";
     int length = snprintf(NULL, 0, fmtString, cut_arguments.selfName, testId, subtest,
                           cut_arguments.timeout);
     char *command = (char *)malloc(length + 1);
     sprintf(command, fmtString, cut_arguments.selfName, testId, subtest, cut_arguments.timeout);
-            
+
     CreateProcessA(cut_arguments.selfName,
                    command,
                    NULL,
@@ -2296,12 +2316,15 @@ CUT_PRIVATE int cut_ReadWholeFile(int fd, char *buffer, size_t length) {
     return 0;
 }
 
-int cut_BinaryFile(FILE *f, size_t size, const unsigned char *content) {
+int cut_BinaryFile(FILE *f, size_t length, const unsigned char *content) {
     int result = 0;
-    size_t length = strlen(content);
     _flushall();
     int fd = _fileno(f);
     char *buf = NULL;
+
+    int prev_translation_mode = _setmode(fd, _O_BINARY);
+    if (prev_translation_mode == -1)
+        cut_FatalExit("cannot change translation mode");
 
     long offset = _lseek(fd, 0, SEEK_CUR);
     if ((size_t) _lseek(fd, 0, SEEK_END) != length)
@@ -2317,12 +2340,64 @@ int cut_BinaryFile(FILE *f, size_t size, const unsigned char *content) {
     result = memcmp(content, buf, length) == 0;
 cleanup:
     _lseek(fd, offset, SEEK_SET);
+    if (_setmode(fd, prev_translation_mode) == -1)
+        cut_FatalExit("cannot change translation mode");
     free(buf);
     return result;
 }
 
-int cut_File(FILE *f, const char *content) {
-    return cut_BinaryFile(f, strlen(content), (const unsigned char *)content);
+void cut_InputFile(const char *name) {
+    if (freopen(name, "r", stdin) == NULL)
+        cut_FatalExit("cannot replace standard input");
+
+    clearerr(stdin);
+}
+
+void cut_Input(size_t size, const char *bytes) {
+    TCHAR tmpPath[MAX_PATH + 1];
+    TCHAR tmpName[MAX_PATH + 1];
+
+    if (GetTempPath(sizeof(tmpPath) - 1, tmpPath) == 0)
+        cut_FatalExit("cannot determine Windows temporary directory path");
+
+    if (GetTempFileName(tmpPath, "cut", 0, tmpName) == 0)
+        cut_FatalExit("cannot get temporary file name");
+
+    HANDLE tmpFile = CreateFile(tmpName, GENERIC_WRITE | GENERIC_READ, 0, NULL,
+            OPEN_EXISTING, FILE_FLAG_DELETE_ON_CLOSE, NULL);
+
+    if (tmpFile == INVALID_HANDLE_VALUE)
+        cut_FatalExit("cannot create temporary file");
+
+    if (!WriteFile(tmpFile, bytes, size, NULL, NULL))
+        cut_FatalExit("cannot write input to a temporary file");
+
+    // we cannot open the temporary file held by tmpFile,
+    // therefore we have to replace the input ourselfs.
+    int fdTmpInput = _open_osfhandle((intptr_t)tmpFile, _O_RDONLY);
+    if (fdTmpInput == -1)
+        cut_FatalExit("cannot convert handle to file descriptor");
+    cut_tmpInput = fdTmpInput;
+   
+    const int stdin_fd = _fileno(stdin);
+
+    if (stdin_fd < 0)
+        cut_FatalExit("cannot get file descriptor of standart input");
+
+    if (_dup2(cut_tmpInput, stdin_fd) == -1)
+        cut_FatalExit("cannot replace standart input with a temporary file");
+
+    if (fseek(stdin, 0, SEEK_SET) != 0)
+        cut_FatalExit("cannot set file position");
+    
+    clearerr(stdin);
+}
+
+CUT_PRIVATE void cut_ReapInputFeed(void) {
+    if (cut_tmpInput >= 0)
+        _close(cut_tmpInput);
+
+    cut_tmpInput = -1;
 }
 
 CUT_PRIVATE int cut_PrintColorized(enum cut_Colors color, const char *text) {

@@ -60,17 +60,17 @@ void _exitus_avoid(int code, void *context)
     longjmp(exitus->handler, (1 << 8) | (code & 0xff));
 }
 
-int exitus_count_args(const char **argv)
+int exitus_count_args(char **argv)
 {
     int counter = 0;
 
-    for (const char **p = argv; *p != NULL; ++p)
+    for (char **p = argv; *p != NULL; ++p)
         ++counter;
 
     return counter;
 }
 
-int exitus(int (*m)(int, const char**), int argc, const char **argv)
+int exitus(int (*m)(int, char**), int argc, char **argv)
 {
     assert(m != NULL);
     assert(argv != NULL);

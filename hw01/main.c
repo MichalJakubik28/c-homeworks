@@ -18,7 +18,7 @@ bool decode(void)
 /*************************************
  * DO NOT MODIFY THE FUNCTION BELLOW *
  *************************************/
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
     if (argc > 2) {
         fprintf(stderr, "Usage: %s (-e|-d)\n", argv[0]);

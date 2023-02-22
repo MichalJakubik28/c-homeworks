@@ -13,7 +13,7 @@ TEST(nanecisto_encode_zeroes)
     /* Array of input bytes. 4 bytes with value 0.
      * NOTE: numbers after prefix '0x' are represent in base 16.
      * */
-    const char input[] = {
+    const unsigned char input[] = {
         0x00, 0x00, 0x00, 0x00,
     };
     // Array of expected bytes on standard output.
@@ -39,7 +39,7 @@ TEST(nanecisto_encode_zeroes)
 // #desc: decode(): nuly
 TEST(nanecisto_decode_zeroes)
 {
-    const char input[] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
+    const unsigned char input[] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
     const unsigned char output[] = { 0x00, 0x00, 0x00, 0x00 };
 
     INPUT_BYTES(input);
@@ -51,7 +51,7 @@ TEST(nanecisto_decode_zeroes)
 // #desc: encode(): príklad zo zadania
 TEST(nanecisto_encode_assignment_example)
 {
-    const char input[] = { 0x00, 0x01, 0x02, 0x03 };
+    const unsigned char input[] = { 0x00, 0x01, 0x02, 0x03 };
     const unsigned char output[] = { 0x20, 0x80, 0x04, 0x08, 0x06 };
     INPUT_BYTES(input);
     CHECK(app_main("-e") == EXIT_SUCCESS);
@@ -62,7 +62,7 @@ TEST(nanecisto_encode_assignment_example)
 // #desc: decode(): príklad zo zadania
 TEST(nanecisto_decode_assignment_example)
 {
-    const char input[] = { 0x20, 0x80, 0x04, 0x08, 0x06 };
+    const unsigned char input[] = { 0x20, 0x80, 0x04, 0x08, 0x06 };
     const unsigned char output[] = { 0x00, 0x01, 0x02, 0x03 };
     INPUT_BYTES(input);
     CHECK(app_main("-d") == EXIT_SUCCESS);

@@ -10,7 +10,7 @@
 #   include WRAP_FILE
 #   undef main
 #else
-int __PB071_wrapped_main(int argc, const char **argv);
+int __PB071_wrapped_main(int argc, char **argv);
 #endif
 
 #include <errno.h>
@@ -57,7 +57,7 @@ int __app_main_2(int argc, const char *argv[])
     /* We will create a copy that we will pass to ‹main()›. We will still
      * keep ‹args_copy› for ourselves to free, so that things will not break
      * when ‹main()› changes its arguments somehow. */
-    const char **args_for_main = _xmalloc(argv_size);
+    char **args_for_main = _xmalloc(argv_size);
     memcpy(args_for_main, args_copy, argv_size);
 
     /* This will make ‹getopt()› and related functions to restart scanning
@@ -83,7 +83,7 @@ int __app_main_2(int argc, const char *argv[])
 static inline
 int __app_main_1(const char *argv[])
 {
-    return __app_main_2(exitus_count_args((const char **) argv), argv);
+    return __app_main_2(exitus_count_args((char **) argv), argv);
 }
 
 /* A little bit of magic never hurt anyone. */

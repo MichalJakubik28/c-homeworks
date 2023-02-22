@@ -13,7 +13,7 @@
 /*
 TEST(TODO_NAME_MUST_BE_UNIQUE)
 {
-    const char input[] = {
+    const unsigned char input[] = {
         // TODO
     };
     const unsigned char output[] = {

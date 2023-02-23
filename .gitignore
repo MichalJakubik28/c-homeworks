@@ -53,7 +53,9 @@ CMakeLists.txt.user*
 # QtCreator local machine specific files for imported projects
 *creator.user*
 
-# Unignore .gitignore and .clang-format
+# Unignore .gitignore, .clang-format and .clang-tidy
 !.gitignore
 !.clang-format
+!.clang-tidy
+
 

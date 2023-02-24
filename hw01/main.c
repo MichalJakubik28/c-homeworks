@@ -7,9 +7,9 @@ bool encode(void) {
 
     int scanned = 1;
 
-    while (scanned > 0) {
+    while (1) {
 
-        char byte1, byte2, byte3, byte4;
+        unsigned char byte1, byte2, byte3, byte4;
         scanned = scanf("%c%c%c%c", &byte1, &byte2, &byte3, &byte4);
 
         if (scanned == EOF) {
@@ -111,13 +111,85 @@ bool encode(void) {
 
 bool decode(void) {
     // TODO implement
-    return false;
+    int scanned = 1;
+
+    while (scanned != EOF) {
+
+        unsigned char byte1, byte2, byte3, byte4, byte5;
+        scanned = scanf("%c%c%c%c%c", &byte1, &byte2, &byte3, &byte4, &byte5);
+
+        if (scanned == EOF) {
+            break;
+        }
+
+        if (scanned != 5) {
+            fprintf(stderr, "Wrong code word\n");
+            return false;
+        }
+
+        if ((byte1 & 0x80) != 0 || (byte5 & 0x01) != 0) {
+            return false;
+        }
+
+        unsigned long code_word = 0;
+        code_word = code_word | byte1;
+        code_word = code_word << 8;
+        code_word = code_word | byte2;
+        code_word = code_word << 8;
+        code_word = code_word | byte3;
+        code_word = code_word << 8;
+        code_word = code_word | byte4;
+        code_word = code_word << 8;
+        code_word = code_word | byte5;
+
+        /*
+        printf("%lu\n", code_word);
+        for (int i = 39; i >= 0; i--) {
+            if ((i + 1) % 8 == 0) {
+                putchar(32);
+            }
+            printf("%d", ((code_word >> i) & 1) ? 1 : 0);
+        }
+         */
+
+        unsigned int info_word = 0;
+        int nearest_two_power = 4;
+        for (int i = 36; i > 0; i--) {
+            if (39 - i == nearest_two_power) {
+                nearest_two_power = nearest_two_power << 1;
+                continue;
+            }
+            info_word = info_word << 1;
+            info_word = info_word | ((code_word >> i) & 1);
+        }
+
+        /*
+        putchar('\n');
+        for (int i = 31; i >= 0; i--) {
+            if ((i + 1) % 8 == 0) {
+                putchar(32);
+            }
+            printf("%d", ((info_word >> i) & 1) ? 1 : 0);
+        }
+         */
+
+        unsigned char out_byte = 0;
+        for (int i = 24; i >= 0; i -= 8) {
+            out_byte = 0;
+            out_byte = out_byte | (info_word >> i);
+            putchar(out_byte);
+        }
+
+    }
+
+    return true;
 }
 
 /*************************************
  * DO NOT MODIFY THE FUNCTION BELLOW *
  *************************************/
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     if (argc > 2) {
         fprintf(stderr, "Usage: %s (-e|-d)\n", argv[0]);
         return EXIT_FAILURE;

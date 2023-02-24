@@ -3,52 +3,113 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool encode(void)
-{
-    // TODO implement
+bool encode(void) {
+
     int scanned = 1;
+
     while (scanned > 0) {
-      char bytes[4];
-      scanned = scanf( "%c%c%c%c", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
-      if (scanned == EOF) {
-        return true;
-      }
-      printf("scanned: %d \n", scanned);
-      for (int i = scanned; i < 4; i++) {
-        bytes[i] = 0;
-      }
-      for (int i = 0; i < 4; i++) {
-        printf("%d ", bytes[i]);
-      }
-      putchar('\n');
 
-      int info_word = 0;
-      for (int i = 0; i < 4; i++) {
+        char byte1, byte2, byte3, byte4;
+        scanned = scanf("%c%c%c%c", &byte1, &byte2, &byte3, &byte4);
+
+        if (scanned == EOF) {
+            break;
+        }
+
+        //printf("scanned: %d \n", scanned);
+
+        unsigned int info_word = 0;
+        info_word = info_word | byte1;
         info_word = info_word << 8;
-        info_word = info_word | bytes[i];
-      }
-      printf("Number: %d \n", info_word);
-      /*char codeword[5] = {0, 0, 0, 0, 0};
-      int curr_index = 3;
-      int curr_bit = 0;
-      char mask = 0;
-      int nearest_two_power = 4;
-      while (curr_index < 39) {
-          if (nearest_two_power == curr_index) {
-              nearest_two_power = nearest_two_power << 1;
-              curr_index += 1;
-              continue;
-          }
-          curr_index += 1;
-      }*/
+        info_word = info_word | byte2;
+        info_word = info_word << 8;
+        info_word = info_word | byte3;
+        info_word = info_word << 8;
+        info_word = info_word | byte4;
 
+        // set 0 to leftover bits if byte amount not divisible by 4
+        info_word = info_word & (0xFFFFFFFF << (4 - scanned) * 8);
+
+        //printf("Number: %d \n", info_word);
+        unsigned long codeword = 0;
+
+        int curr_code_bit = 3;
+        int nearest_two_power = 4;
+
+        while (curr_code_bit < 40) { // TODO da sa aj do 39
+            codeword = codeword << 1;
+            if (curr_code_bit == nearest_two_power) {
+                curr_code_bit += 1;
+                nearest_two_power = nearest_two_power << 1;
+                continue;
+            }
+            codeword = codeword | ((info_word & 0x80000000) >> 31);
+            info_word = info_word << 1;
+            curr_code_bit += 1;
+        }
+
+        /*
+        for (int i = 39; i >= 0; i--) {
+            printf("%d", ((codeword >> i) & 1) ? 1 : 0);
+        }
+
+        putchar('\n');
+        */
+
+        unsigned int xor = 0;
+        unsigned long one = 1;
+        //unsigned long to_and = 0;
+
+        for (unsigned int power = 1; power <= 32; power = power << 1) {    // for each power
+            xor = 0;
+            for (unsigned int index = power; index < 40; index++) {
+                if ((index & power) != 0) {
+                    xor = xor ^ ((codeword >> (39 - index)) & 1);
+                }
+            }
+            if (xor == 1) {
+                /*
+                to_and = one << (39 - power);
+                printf("To and with power %d: ", power);
+                for (int i = 39; i >= 0; i--) {
+                    printf("%d", ((to_and >> i) & 1) ? 1 : 0);
+                }
+                putchar('\n');
+                */
+
+                codeword = codeword | (one << (39 - power));
+
+                /*
+                printf("HAPPENED, power: %lu\n", power);
+                printf("New number: ");
+                for (int i = 39; i >= 0; i--) {
+                    printf("%d", ((codeword >> i) & 1) ? 1 : 0);
+                }
+                putchar('\n');
+                */
+            }
+        }
+
+        /*
+        printf("CISLO: dec: %lu hex: %lx\n", codeword, codeword);
+
+        for (int i = 39; i >= 0; i--) {
+            printf("%d", ((codeword >> i) & 1) ? 1 : 0);
+        }
+         */
+
+        unsigned char out_byte = 0;
+        for (int i = 32; i >= 0; i -= 8) {
+            out_byte = 0;
+            out_byte = out_byte | (codeword >> i);
+            putchar(out_byte);
+        }
 
     }
     return true;
 }
 
-bool decode(void)
-{
+bool decode(void) {
     // TODO implement
     return false;
 }
@@ -56,8 +117,7 @@ bool decode(void)
 /*************************************
  * DO NOT MODIFY THE FUNCTION BELLOW *
  *************************************/
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (argc > 2) {
         fprintf(stderr, "Usage: %s (-e|-d)\n", argv[0]);
         return EXIT_FAILURE;

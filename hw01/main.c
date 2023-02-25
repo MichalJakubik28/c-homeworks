@@ -16,8 +16,6 @@ bool encode(void) {
             break;
         }
 
-        //printf("scanned: %d \n", scanned);
-
         unsigned int info_word = 0;
         info_word = info_word | byte1;
         info_word = info_word << 8;
@@ -30,35 +28,21 @@ bool encode(void) {
         // set 0 to leftover bits if byte amount not divisible by 4
         info_word = info_word & (0xFFFFFFFF << (4 - scanned) * 8);
 
-        //printf("Number: %d \n", info_word);
         unsigned long codeword = 0;
-
-        int curr_code_bit = 3;
         int nearest_two_power = 4;
 
-        while (curr_code_bit < 40) { // TODO da sa aj do 39
+        for (int curr_code_bit = 3; curr_code_bit < 40; curr_code_bit++) { // TODO da sa aj do 39
             codeword = codeword << 1;
             if (curr_code_bit == nearest_two_power) {
-                curr_code_bit += 1;
                 nearest_two_power = nearest_two_power << 1;
                 continue;
             }
             codeword = codeword | ((info_word & 0x80000000) >> 31);
             info_word = info_word << 1;
-            curr_code_bit += 1;
         }
-
-        /*
-        for (int i = 39; i >= 0; i--) {
-            printf("%d", ((codeword >> i) & 1) ? 1 : 0);
-        }
-
-        putchar('\n');
-        */
 
         unsigned int xor = 0;
         unsigned long one = 1;
-        //unsigned long to_and = 0;
 
         for (unsigned int power = 1; power <= 32; power = power << 1) {    // for each power
             xor = 0;
@@ -68,35 +52,9 @@ bool encode(void) {
                 }
             }
             if (xor == 1) {
-                /*
-                to_and = one << (39 - power);
-                printf("To and with power %d: ", power);
-                for (int i = 39; i >= 0; i--) {
-                    printf("%d", ((to_and >> i) & 1) ? 1 : 0);
-                }
-                putchar('\n');
-                */
-
                 codeword = codeword | (one << (39 - power));
-
-                /*
-                printf("HAPPENED, power: %lu\n", power);
-                printf("New number: ");
-                for (int i = 39; i >= 0; i--) {
-                    printf("%d", ((codeword >> i) & 1) ? 1 : 0);
-                }
-                putchar('\n');
-                */
             }
         }
-
-        /*
-        printf("CISLO: dec: %lu hex: %lx\n", codeword, codeword);
-
-        for (int i = 39; i >= 0; i--) {
-            printf("%d", ((codeword >> i) & 1) ? 1 : 0);
-        }
-         */
 
         unsigned char out_byte = 0;
         for (int i = 32; i >= 0; i -= 8) {
@@ -142,16 +100,6 @@ bool decode(void) {
         code_word = code_word << 8;
         code_word = code_word | byte5;
 
-        /*
-        printf("%lu\n", code_word);
-        for (int i = 39; i >= 0; i--) {
-            if ((i + 1) % 8 == 0) {
-                putchar(32);
-            }
-            printf("%d", ((code_word >> i) & 1) ? 1 : 0);
-        }
-         */
-
         unsigned char correction_xor = 0;
         unsigned long one = 1;
         for (int i = 39; i > 0; i--) {
@@ -160,7 +108,7 @@ bool decode(void) {
             }
         }
         if (correction_xor != 0) {
-            fprintf(stderr,"One-bit error in byte %d\n", correction_xor);
+            fprintf(stderr,"One-bit error in byte %d\n", correction_xor / 8);
         }
         code_word = code_word ^ (one << (39 - correction_xor));
 
@@ -177,6 +125,7 @@ bool decode(void) {
         }
 
         /*
+        // printing info_word
         putchar('\n');
         for (int i = 31; i >= 0; i--) {
             if ((i + 1) % 8 == 0) {

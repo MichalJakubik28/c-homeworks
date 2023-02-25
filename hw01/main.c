@@ -113,7 +113,7 @@ bool decode(void) {
     // TODO implement
     int scanned = 1;
 
-    while (scanned != EOF) {
+    while (1) {
 
         unsigned char byte1, byte2, byte3, byte4, byte5;
         scanned = scanf("%c%c%c%c%c", &byte1, &byte2, &byte3, &byte4, &byte5);
@@ -152,9 +152,22 @@ bool decode(void) {
         }
          */
 
+        unsigned char correction_xor = 0;
+        unsigned long one = 1;
+        for (int i = 39; i > 0; i--) {
+            if (((code_word >> i) & 1) == 1) {
+                correction_xor = correction_xor ^ (39 - i);
+            }
+        }
+        if (correction_xor != 0) {
+            fprintf(stderr,"One-bit error in byte %d\n", correction_xor);
+        }
+        code_word = code_word ^ (one << (39 - correction_xor));
+
+
         unsigned int info_word = 0;
-        int nearest_two_power = 4;
-        for (int i = 36; i > 0; i--) {
+        int nearest_two_power = 1;
+        for (int i = 39; i > 0; i--) {
             if (39 - i == nearest_two_power) {
                 nearest_two_power = nearest_two_power << 1;
                 continue;
@@ -173,13 +186,13 @@ bool decode(void) {
         }
          */
 
+
         unsigned char out_byte = 0;
         for (int i = 24; i >= 0; i -= 8) {
             out_byte = 0;
             out_byte = out_byte | (info_word >> i);
             putchar(out_byte);
         }
-
     }
 
     return true;

@@ -12,11 +12,11 @@
 
 void print_output_bytes(unsigned int length, const unsigned long *word)
 {
-    unsigned char out_byte = 0;
+    unsigned char output_byte = 0;
     for (unsigned int i = length * 8; i >= 8; i -= 8) {
-        out_byte = 0;
-        out_byte = out_byte | (*word >> (i - 8));
-        putchar(out_byte);
+        output_byte = 0;
+        output_byte = output_byte | (*word >> (i - 8));
+        putchar(output_byte);
     }
 }
 
@@ -34,6 +34,8 @@ bool read_info_word(unsigned int *info_word)
             }
             break;
         }
+
+        // add byte to info_word
         *info_word = *info_word << 8;
         *info_word = *info_word | curr_byte;
         available_bytes += 1;
@@ -42,26 +44,6 @@ bool read_info_word(unsigned int *info_word)
     // set 0 to leftover bits if byte amount not divisible by 4
     *info_word = *info_word << ((INFO_WORD_SIZE - available_bytes) * 8);
     return true;
-}
-
-unsigned long set_parity_bits(unsigned long codeword)
-{
-    unsigned int parity = 0;
-
-    // set parity bit for each position that is a power of 2
-    for (unsigned int power = 1; power <= 32; power = power << 1) {
-        parity = 0;
-        for (unsigned int index = power; index < CODEWORD_BIT_SIZE; index++) {
-            if ((index & power) != 0) {
-                parity = parity ^ ((codeword >> (CODEWORD_BIT_SIZE - 1 - index)) & 1);
-            }
-        }
-        if (parity == 1) {
-            codeword = codeword | (1l << (CODEWORD_BIT_SIZE - 1 - power));
-        }
-    }
-
-    return codeword;
 }
 
 unsigned long info_word_to_codeword(unsigned int info_word)
@@ -75,8 +57,34 @@ unsigned long info_word_to_codeword(unsigned int info_word)
             nearest_two_power = nearest_two_power << 1;
             continue;
         }
+
+        // add current info bit to codeword
         codeword = codeword | ((info_word & 0x80000000) >> (INFO_WORD_BIT_SIZE - 1));
         info_word = info_word << 1;
+    }
+
+    return codeword;
+}
+
+unsigned long set_parity_bits(unsigned long codeword)
+{
+    unsigned int parity = 0;
+
+    // set parity bit for each position that is a power of 2
+    for (unsigned int power = 1; power <= 32; power = power << 1) {
+        parity = 0;
+        for (unsigned int curr_bit = power; curr_bit < CODEWORD_BIT_SIZE; curr_bit++) {
+            // bit has current power in its position number
+            if ((curr_bit & power) != 0) {
+                // "xor" parity bit with current bit (shift codeword so that current bit is the least significant and
+                // then "and" it with 1 to check its value)
+                parity = parity ^ ((codeword >> (CODEWORD_BIT_SIZE - 1 - curr_bit)) & 1);
+            }
+        }
+        if (parity == 1) {
+            // set parity bit by "or-ing" it with 1 shifted by the power's position
+            codeword = codeword | (1l << (CODEWORD_BIT_SIZE - 1 - power));
+        }
     }
 
     return codeword;
@@ -116,9 +124,12 @@ int read_codeword(unsigned long *codeword)
 
         available_bytes += 1;
 
+        // words with first or last bit set to 1 are invalid
         if ((available_bytes == 1 && (curr_byte & 0x80) != 0) || (available_bytes == CODEWORD_SIZE && (curr_byte & 0x01) != 0)) {
             return INFO_WORD_ERROR;
         }
+
+        // add byte to codeword
         *codeword = *codeword << 8;
         *codeword = *codeword | curr_byte;
     }
@@ -127,18 +138,20 @@ int read_codeword(unsigned long *codeword)
 
 unsigned long correct_codeword(unsigned long codeword, unsigned long long processed)
 {
-    unsigned char correction_xor = 0;
+    unsigned char faulty_bit = 0;
 
     // compute xor of all positions set to 1
     for (int i = CODEWORD_BIT_SIZE - 1; i > 0; i--) {
         if (((codeword >> i) & 1) == 1) {
-            correction_xor = correction_xor ^ (CODEWORD_BIT_SIZE - 1 - i);
+            faulty_bit = faulty_bit ^ (CODEWORD_BIT_SIZE - 1 - i);
         }
     }
 
-    if (correction_xor != 0) {
-        fprintf(stderr, "One-bit error in byte %llu\n", correction_xor / 8 + processed);
-        return codeword ^ (1l << (CODEWORD_BIT_SIZE - 1 - correction_xor));
+    if (faulty_bit != 0) {
+        fprintf(stderr, "One-bit error in byte %llu\n", faulty_bit / 8 + processed);
+
+        // switch faulty bit by "xor-ing" it with 1 shifted by the faulty bit's position
+        return codeword ^ (1l << (CODEWORD_BIT_SIZE - 1 - faulty_bit));
     }
 
     return codeword;
@@ -149,10 +162,13 @@ unsigned long codeword_to_info_word(unsigned long codeword)
     unsigned int info_word = 0;
     int nearest_two_power = 1;
     for (int i = CODEWORD_BIT_SIZE - 1; i > 0; i--) {
+        // skip powers of 2
         if (CODEWORD_BIT_SIZE - 1 - i == nearest_two_power) {
             nearest_two_power = nearest_two_power << 1;
             continue;
         }
+
+        // add current bit by "or-ing" it with info_word
         info_word = info_word << 1;
         info_word = info_word | ((codeword >> i) & 1);
     }
@@ -165,6 +181,7 @@ bool decode(void)
     unsigned long long processed_bytes = 0;
     while (1) {
         unsigned long codeword = 0;
+
         switch (read_codeword(&codeword)) {
         case END_OF_STREAM:
             return true;

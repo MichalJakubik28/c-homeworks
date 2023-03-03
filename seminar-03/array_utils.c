@@ -1,39 +1,143 @@
 #include "array_utils.h"
+#include <stdio.h>
 
-int find_max_in_array(int array[ARRAY_LENGTH])
+int *find_number_in_array(int array[ARRAY_LENGTH], int number)
 {
-    int max = array[0];
-    for (int i = 1; i < ARRAY_LENGTH; i++)
+    for (int i = 0; i < ARRAY_LENGTH; i++)
     {
-        if (array[i] > max)
+        if (array[i] == number)
         {
-            max = array[i];
+            return &array[i];
         }
     }
-    return max;
+
+    return NULL;
 }
 
-int find_min_in_array(int array[ARRAY_LENGTH])
+int find_sum_in_array(size_t length, const int *array)
 {
-    int min = array[0];
-    for (int i = 1; i < ARRAY_LENGTH; i++)
+    if (array == NULL)
     {
-        if (array[i] < min)
+        return 0;
+    }
+
+    int sum = 0;
+    for (unsigned int i = 0; i < length; i++)
+    {
+        sum += *(array + i);
+    }
+    return sum;
+}
+
+int find_max_min_in_array(size_t length, const int *array, int *max, int *min)
+{
+    if (max == NULL && min == NULL)
+    {
+        return 0;
+    }
+
+    for (int i = 0; i < length; i++)
+    {
+        if (max != NULL && (i == 0 || *(array + i) > *max))
         {
-            min = array[i];
+            *max = *(array + i);
+        }
+
+        if (min != NULL && (i == 0 || *(array + i) < *min))
+        {
+            *min = *(array + i);
         }
     }
-    return min;
+
+    if (max != NULL && min != NULL)
+    {
+        return 2;
+    }
+
+    return 1;
 }
 
-int find_sum_in_array(int array[ARRAY_LENGTH])
+int gcd(int a, int b)
 {
+    if (a < b)
     {
-        int sum = 0;
-        for (int i = 0; i < ARRAY_LENGTH; i++)
+        return gcd(b, a);
+    }
+
+    while (b != 0)
+    {
+        int r = a;
+        a = b;
+        b = r % b;
+    }
+
+    return a;
+}
+
+int find_gcd_in_array(size_t length, const int *array)
+{
+    if (array == NULL)
+    {
+        return 0;
+    }
+
+    int array_gcd = *array;
+
+    for (int i = 1; i < length; i++)
+    {
+        array_gcd = gcd(array_gcd, *(array + i));
+    }
+
+    return array_gcd;
+}
+
+void print_array(size_t length, const int *array)
+{
+    putchar('[');
+    for (unsigned int i = 0; i < length; i++)
+    {
+        printf("%d", *(array + i));
+        if (i != length - 1)
         {
-            sum += array[i];
+            printf(", ");
         }
-        return sum;
+    }
+    printf("]\n");
+}
+
+void copy_array(size_t length, const int *orig_array, int *new_array)
+{
+    for (unsigned int i = 0; i < length; i++)
+    {
+        *(new_array + i) = *(orig_array + i);
+    }
+}
+
+void divide_array(size_t length, int *array, int divisor)
+{
+    for (unsigned int i = 0; i < length; i++)
+    {
+        *(array + i) = *(array + i) / divisor;
+    }
+}
+
+void swap(int *x, int *y)
+{
+    int aux = *y;
+    *y = *x;
+    *x = aux;
+}
+
+void bubble_sort(size_t length, int *array)
+{
+    for (int i = length - 1; i >= 0; i--)
+    {
+        for (int j = 0; j < i; j++)
+        {
+            if (*(array + j) > *(array + j + 1))
+            {
+                swap(array + j, array + j + 1);
+            }
+        }
     }
 }

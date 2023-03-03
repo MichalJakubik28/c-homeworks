@@ -3,48 +3,6 @@
 
 #include "array_utils.h"
 
-int gcd(int a, int b)
-{
-    if (a < b)
-    {
-        return gcd(b, a);
-    }
-
-    while (b != 0)
-    {
-        int r = a;
-        a = b;
-        b = r % b;
-    }
-
-    return a;
-}
-
-int find_gcd_in_array(int array[ARRAY_LENGTH])
-{
-    int array_gcd = array[0];
-
-    for (int i = 1; i < ARRAY_LENGTH; i++)
-    {
-        array_gcd = gcd(array_gcd, array[i]);
-    }
-
-    return array_gcd;
-}
-
-int *find_number_in_array(int array[ARRAY_LENGTH], int number)
-{
-    for (int i = 0; i < ARRAY_LENGTH; i++)
-    {
-        if (array[i] == number)
-        {
-            return &array[i];
-        }
-    }
-
-    return NULL;
-}
-
 int main(void)
 {
     int array[ARRAY_LENGTH];
@@ -54,21 +12,20 @@ int main(void)
         scanf("%d", &array[i]);
     }
 
-    printf("\nArray: [");
-    for (int i = 0; i < ARRAY_LENGTH; i++) {
-        printf("%d", array[i]);
-        if (i != ARRAY_LENGTH - 1) {
-            printf(", ");
-        }
-    }
+    printf("\nArray: ");
+    print_array(ARRAY_LENGTH, array);
 
     int number_to_find = 0;
-    int* pointer = NULL;
+    int min = 0;
+    int max = 0;
+    find_max_min_in_array(ARRAY_LENGTH, array, &max, &min);
 
-    printf("]\nSum: %d\n", find_sum_in_array(array));
-    printf("Max: %d; Min: %d\n", find_min_in_array(array), find_max_in_array(array));
+    printf("Sum: %d\n", find_sum_in_array(ARRAY_LENGTH, array));
+    printf("Max: %d; Min: %d\n", max, min);
     printf("Number to find: ");
     scanf("%d", &number_to_find);
+
+    int* pointer = NULL;
     pointer = find_number_in_array(array, number_to_find);
     if (pointer == NULL)
     {
@@ -79,18 +36,18 @@ int main(void)
         printf("Address of the number: %p\n", (void*) pointer);
     }
 
-    int gcd = find_gcd_in_array(array);
+    int gcd = find_gcd_in_array(ARRAY_LENGTH, array);
+    int divided_array[ARRAY_LENGTH];
 
-    printf("GCD: %d; Factors: [", gcd);
-    for (int i = 0; i < ARRAY_LENGTH; i++)
-    {
-        printf("%d", array[i] / gcd);
-        if (i != ARRAY_LENGTH - 1)
-        {
-            printf(", ");
-        }
-    }
-    putchar(']');
+    copy_array(ARRAY_LENGTH, array, divided_array);
+    divide_array(ARRAY_LENGTH, divided_array, gcd);
+
+    printf("GCD: %d; Factors: ", gcd);
+
+    print_array(ARRAY_LENGTH, divided_array);
+    bubble_sort(ARRAY_LENGTH, array);
+    printf("Sorted: ");
+    print_array(ARRAY_LENGTH, array);
 
     return EXIT_SUCCESS;
 }

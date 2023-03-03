@@ -67,6 +67,7 @@ bool encode(void)
 bool decode(void)
 {
     int scanned = 1;
+    unsigned int processed_bytes = 0;
 
     while (1) {
         unsigned char byte1, byte2, byte3, byte4, byte5;
@@ -82,8 +83,10 @@ bool decode(void)
         }
 
         if ((byte1 & 0x80) != 0 || (byte5 & 0x01) != 0) {
+            fprintf(stderr, "Wrong code word\n");
             return false;
         }
+
 
         unsigned long code_word = 0;
         code_word = code_word | byte1;
@@ -104,7 +107,7 @@ bool decode(void)
             }
         }
         if (correction_xor != 0) {
-            fprintf(stderr, "One-bit error in byte %d\n", correction_xor / 8);
+            fprintf(stderr, "One-bit error in byte %d\n", correction_xor / 8 + processed_bytes);
         }
         code_word = code_word ^ (1l << (39 - correction_xor));
 
@@ -125,6 +128,8 @@ bool decode(void)
             out_byte = out_byte | (info_word >> i);
             putchar(out_byte);
         }
+
+        processed_bytes += 5;
     }
 
     return true;

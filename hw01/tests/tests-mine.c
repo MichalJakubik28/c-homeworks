@@ -250,7 +250,7 @@ TEST(decode_one_on_end)
 
     INPUT_BYTES(input);
     CHECK(app_main("-d") == EXIT_FAILURE);
-    CHECK_FILE(stderr, "");
+    CHECK_FILE(stderr, "Wrong code word\n");
 }
 
 TEST(decode_one_on_start)
@@ -261,7 +261,7 @@ TEST(decode_one_on_start)
 
     INPUT_BYTES(input);
     CHECK(app_main("-d") == EXIT_FAILURE);
-    CHECK_FILE(stderr, "");
+    CHECK_FILE(stderr, "Wrong code word\n");
 }
 
 TEST(decode_wrong_word)

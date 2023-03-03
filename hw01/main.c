@@ -2,137 +2,212 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define INFO_WORD_OK 0
+#define END_OF_STREAM 1
+#define INFO_WORD_ERROR 2
+#define INFO_WORD_SIZE 4
+#define CODEWORD_SIZE 5
+#define INFO_WORD_BIT_SIZE (INFO_WORD_SIZE * 8)
+#define CODEWORD_BIT_SIZE (CODEWORD_SIZE * 8)
 
-bool encode(void)
+void print_output_bytes(unsigned int length, const unsigned long* word)
 {
-    int scanned = 1;
+    unsigned char out_byte = 0;
+    for (unsigned int i = length * 8; i >= 8; i -= 8)
+    {
+        out_byte = 0;
+        out_byte = out_byte | (*word >> (i - 8));
+        putchar(out_byte);
+    }
+}
 
-    while (1) {
-        unsigned char byte1, byte2, byte3, byte4;
-        scanned = scanf("%c%c%c%c", &byte1, &byte2, &byte3, &byte4);
+bool read_info_word(unsigned int* info_word)
+{
+    unsigned int available_bytes = 0;
+    int curr_byte = 0;
 
-        if (scanned == EOF) {
+    // load 4 bytes
+    while (available_bytes < INFO_WORD_SIZE)
+    {
+        curr_byte = getchar();
+        if (curr_byte == EOF)
+        {
+            if (available_bytes == 0)
+            {
+                return false;
+            }
             break;
         }
-
-        unsigned int info_word = 0;
-        info_word = info_word | byte1;
-        info_word = info_word << 8;
-        info_word = info_word | byte2;
-        info_word = info_word << 8;
-        info_word = info_word | byte3;
-        info_word = info_word << 8;
-        info_word = info_word | byte4;
-
-        // set 0 to leftover bits if byte amount not divisible by 4
-        info_word = info_word & (0xFFFFFFFF << (4 - scanned) * 8);
-
-        unsigned long codeword = 0;
-        int nearest_two_power = 4;
-
-        for (int curr_code_bit = 3; curr_code_bit < 40; curr_code_bit++) {
-            codeword = codeword << 1;
-            if (curr_code_bit == nearest_two_power) {
-                nearest_two_power = nearest_two_power << 1;
-                continue;
-            }
-            codeword = codeword | ((info_word & 0x80000000) >> 31);
-            info_word = info_word << 1;
-        }
-
-        unsigned int xor = 0;
-
-        for (unsigned int power = 1; power <= 32; power = power << 1) { // for each power
-            xor = 0;
-            for (unsigned int index = power; index < 40; index++) {
-                if ((index & power) != 0) {
-                    xor = xor^((codeword >> (39 - index)) & 1);
-                }
-            }
-            if (xor == 1) {
-                codeword = codeword | (1l << (39 - power));
-            }
-        }
-
-        unsigned char out_byte = 0;
-        for (int i = 32; i >= 0; i -= 8) {
-            out_byte = 0;
-            out_byte = out_byte | (codeword >> i);
-            putchar(out_byte);
-        }
+        *info_word = *info_word << 8;
+        *info_word = *info_word | curr_byte;
+        available_bytes += 1;
     }
+
+    // set 0 to leftover bits if byte amount not divisible by 4
+    *info_word = *info_word << ((INFO_WORD_SIZE - available_bytes) * 8);
     return true;
 }
 
-bool decode(void)
+unsigned long set_parity_bits(unsigned long codeword)
 {
-    int scanned = 1;
-    unsigned int processed_bytes = 0;
+    unsigned int parity = 0;
 
-    while (1) {
-        unsigned char byte1, byte2, byte3, byte4, byte5;
-        scanned = scanf("%c%c%c%c%c", &byte1, &byte2, &byte3, &byte4, &byte5);
-
-        if (scanned == EOF) {
-            break;
-        }
-
-        if (scanned != 5) {
-            fprintf(stderr, "Wrong code word\n");
-            return false;
-        }
-
-        if ((byte1 & 0x80) != 0 || (byte5 & 0x01) != 0) {
-            fprintf(stderr, "Wrong code word\n");
-            return false;
-        }
-
-
-        unsigned long code_word = 0;
-        code_word = code_word | byte1;
-        code_word = code_word << 8;
-        code_word = code_word | byte2;
-        code_word = code_word << 8;
-        code_word = code_word | byte3;
-        code_word = code_word << 8;
-        code_word = code_word | byte4;
-        code_word = code_word << 8;
-        code_word = code_word | byte5;
-
-        unsigned char correction_xor = 0;
-
-        for (int i = 39; i > 0; i--) {
-            if (((code_word >> i) & 1) == 1) {
-                correction_xor = correction_xor ^ (39 - i);
+    // set parity bit for each position that is a power of 2
+    for (unsigned int power = 1; power <= 32; power = power << 1)
+    {
+        parity = 0;
+        for (unsigned int index = power; index < CODEWORD_BIT_SIZE; index++)
+        {
+            if ((index & power) != 0)
+            {
+                parity = parity ^ ((codeword >> (CODEWORD_BIT_SIZE - 1 - index)) & 1);
             }
         }
-        if (correction_xor != 0) {
-            fprintf(stderr, "One-bit error in byte %d\n", correction_xor / 8 + processed_bytes);
+        if (parity == 1)
+        {
+            codeword = codeword | (1l << (CODEWORD_BIT_SIZE - 1 - power));
         }
-        code_word = code_word ^ (1l << (39 - correction_xor));
-
-        unsigned int info_word = 0;
-        int nearest_two_power = 1;
-        for (int i = 39; i > 0; i--) {
-            if (39 - i == nearest_two_power) {
-                nearest_two_power = nearest_two_power << 1;
-                continue;
-            }
-            info_word = info_word << 1;
-            info_word = info_word | ((code_word >> i) & 1);
-        }
-
-        unsigned char out_byte = 0;
-        for (int i = 24; i >= 0; i -= 8) {
-            out_byte = 0;
-            out_byte = out_byte | (info_word >> i);
-            putchar(out_byte);
-        }
-
-        processed_bytes += 5;
     }
 
-    return true;
+    return codeword;
+}
+
+unsigned long info_word_to_codeword(unsigned int info_word)
+{
+    unsigned long codeword = 0;
+    int nearest_two_power = 4;
+
+    for (int curr_code_bit = 3; curr_code_bit < CODEWORD_BIT_SIZE; curr_code_bit++)
+    {
+        codeword = codeword << 1;
+        if (curr_code_bit == nearest_two_power)
+        {
+            nearest_two_power = nearest_two_power << 1;
+            continue;
+        }
+        codeword = codeword | ((info_word & 0x80000000) >> (INFO_WORD_BIT_SIZE - 1));
+        info_word = info_word << 1;
+    }
+
+    return codeword;
+}
+
+bool encode(void)
+{
+    while (1)
+    {
+        unsigned int info_word = 0;
+        if (!read_info_word(&info_word))
+        {
+            return true;
+        }
+
+        unsigned long codeword = info_word_to_codeword(info_word);
+
+        codeword = set_parity_bits(codeword);
+
+        // print 5 bytes of codeword
+        print_output_bytes(CODEWORD_SIZE, &codeword);
+    }
+}
+
+int read_codeword(unsigned long* codeword)
+{
+    unsigned int available_bytes = 0;
+    int curr_byte = 0;
+
+    while (available_bytes < CODEWORD_SIZE)
+    {
+        curr_byte = getchar();
+        if (curr_byte == EOF)
+        {
+            if (available_bytes == 0)
+            {
+                return END_OF_STREAM;
+            }
+
+            return INFO_WORD_ERROR;
+        }
+
+        available_bytes += 1;
+
+        if ((available_bytes == 1 && (curr_byte & 0x80) != 0)
+            || (available_bytes == CODEWORD_SIZE && (curr_byte & 0x01) != 0))
+        {
+            return INFO_WORD_ERROR;
+        }
+        *codeword = *codeword << 8;
+        *codeword = *codeword | curr_byte;
+    }
+    return INFO_WORD_OK;
+}
+
+unsigned long correct_codeword(unsigned long codeword, unsigned long long processed)
+{
+    unsigned char correction_xor = 0;
+
+    // compute xor of all positions set to 1
+    for (int i = CODEWORD_BIT_SIZE - 1; i > 0; i--)
+    {
+        if (((codeword >> i) & 1) == 1)
+        {
+            correction_xor = correction_xor ^ (CODEWORD_BIT_SIZE - 1 - i);
+        }
+    }
+
+    if (correction_xor != 0)
+    {
+        fprintf(stderr, "One-bit error in byte %llu\n", correction_xor / 8 + processed);
+        return codeword ^ (1l << (CODEWORD_BIT_SIZE - 1 - correction_xor));
+    }
+
+    return codeword;
+}
+
+unsigned long codeword_to_info_word(unsigned long codeword)
+{
+    unsigned int info_word = 0;
+    int nearest_two_power = 1;
+    for (int i = CODEWORD_BIT_SIZE - 1; i > 0; i--)
+    {
+        if (CODEWORD_BIT_SIZE - 1 - i == nearest_two_power)
+        {
+            nearest_two_power = nearest_two_power << 1;
+            continue;
+        }
+        info_word = info_word << 1;
+        info_word = info_word | ((codeword >> i) & 1);
+    }
+
+    return info_word;
+}
+
+
+bool decode(void)
+{
+    unsigned long long processed_bytes = 0;
+    while (1)
+    {
+        unsigned long codeword = 0;
+        switch (read_codeword(&codeword)) {
+            case END_OF_STREAM: return true;
+            case INFO_WORD_ERROR:
+            {
+                fprintf(stderr, "Wrong code word\n");
+                return false;
+            }
+            default: break;
+        }
+
+        codeword = correct_codeword(codeword, processed_bytes);
+
+        unsigned int info_word = codeword_to_info_word(codeword);
+
+        // print 4 bytes of information word
+        print_output_bytes(INFO_WORD_SIZE, (unsigned long*) &info_word);
+
+        processed_bytes += CODEWORD_SIZE;
+    }
 }
 
 /*************************************

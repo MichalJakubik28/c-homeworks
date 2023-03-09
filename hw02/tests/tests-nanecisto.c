@@ -31,7 +31,7 @@ TEST(P2_win) {
     INPUT_STRING(
         "6s Kh\n"
         "Ah 3h\n"
-        "Ac 4h 5h Ks Jh\n"
+        "Ac 4h 5h Ks Jd\n"
     );
 
     app_main();

@@ -2,7 +2,7 @@
 title: "HW02: Texas Hold'em Poker"
 layout: "homework"
 list-of-files: ["main.c"]
-publish: ~
+publish: now
 publish-solution: ~
 deadline-early: 2023-03-15 24:00
 deadline-final: 2023-03-22 24:00
@@ -154,10 +154,10 @@ podmínky:
 Pokud některá podmínka neplatí, vypište nějakou smysluplnou zprávu
 ukončenou znakem `\n` na **standardní chybový výstup**
 voláním funkce `fprintf()` s prvním argumentem `stderr`.
-[.add]#Tato zpráva musí být pouze na jediném řádku, tzn. pokud vypisujete
-část vstupu, dejte si pozor, aby program nevypsal další `'\n'` uvnitř zprávy.#
-[.add]#Další instance se po chybě zpracovávat nesmí, program ukončete
-s libovolným návratovým kódem.#
+Tato zpráva musí být pouze na jediném řádku, tzn. pokud vypisujete
+část vstupu, dejte si pozor, aby program nevypsal další `'\n'` uvnitř zprávy.
+Další instance se po chybě zpracovávat nesmí, program ukončete
+s libovolným návratovým kódem.
 
 Příklad použití funkce `fprintf()`:
 
@@ -204,7 +204,7 @@ Qd 8s 2c 4c Kh
 7c 7h Ac Kd 2d
 6s Kh
 Ah 3h
-Ac 4h 5h Ks Jh
+Ac 4h 5h Ks Jd
 ----
 
 je očekávaným výstupem
@@ -225,9 +225,9 @@ Komentář:
   pouze pět nejlepších karet, v tomto případě pár a tři zbylé nejvyšší karty).
   Pár {C7c} {C7h} je pro oba hráče společný, a zbytek karet má stejnou hodnotu,
   proto dochází k remíze.
-
 To, že jeden drží {C5c}, zatímco druhý {C4s}, je již
   nepodstatné.
+
 * Ve třetím případě má první hráč dvojici ({CKs} {CKh}), ale druhý má vyšší dvojici
   ({CAc} {CAh}).
 
@@ -255,7 +255,9 @@ Draw
 * Pro případ, že byste měli nejasnosti týkající se formátu vstupu a výstupu
   nebo srovnávání jednotlivých karetních kombinací, můžete srovnat
   chování vašeho programu se vzorovým řešením, které je vám k dispozici
-  na Aise na `{page.solution-path}`.
+  na Aise:
++
+`{{page.solution-path}}`
 +
 Vzorová implementace s přepínačem `-e` (_explain_) navíc vysvětlí na výstupu,
 který hráč má jakou kombinaci.

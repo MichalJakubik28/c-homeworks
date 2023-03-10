@@ -113,6 +113,7 @@ int find_palindromes(size_t mrows, size_t mcols, int matrix[mrows][mcols], bool 
             first += 1;
             last -= 1;
         }
+        palindromes[i] = false;
         if (first >= last)
         {
             palindrome_count += 1;
@@ -124,6 +125,11 @@ int find_palindromes(size_t mrows, size_t mcols, int matrix[mrows][mcols], bool 
 
 int find_max_min_pointers(size_t length, int *array, int **max, int **min)
 {
+    if (array == NULL)
+    {
+        return 0;
+    }
+
     if (max == NULL && min == NULL)
     {
         return 0;
@@ -152,6 +158,11 @@ int find_max_min_pointers(size_t length, int *array, int **max, int **min)
 
 int find_max_min_in_array(size_t length, const int *array, int *max, int *min)
 {
+    if (array == NULL)
+    {
+        return 0;
+    }
+    
     if (max == NULL && min == NULL)
     {
         return 0;

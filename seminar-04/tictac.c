@@ -113,19 +113,99 @@ int main(void)
 
 int play_turn(char board[BOARD_SIZE][BOARD_SIZE], short iteration, char player_names[2][STRING_SIZE])
 {
-    // TODO: Implement the turn part of game
+    printf("%s: ", player_names[iteration % 2]);
+    int row = -1;
+    int column = -1;
+    int status = scanf(" %d %d", &row,&column);
+    if (status == EOF || column < 0 || row < 0 || board[row][column] != EMPTY_CHAR)
+    {
+        return GAMEPLAY_ERROR;
+    }
+    board[row][column] = iteration % 2 == 0 ? 'X' : 'O';
     UNUSED(iteration);
     UNUSED(player_names);
     print_game_board(board);
 
-    return 0;
+    return GAMEPLAY_OK;
 }
 
 int check_winning_move(char board[BOARD_SIZE][BOARD_SIZE])
 {
-    // TODO: Implement checking algorithm
+    int empty_spaces = 0;
+    for (int row = 0; row < BOARD_SIZE; row++)
+    {
+        for (int column = 0; column < BOARD_SIZE; column++)
+        {
+            char curr_char = board[row][column];
+            if (curr_char == EMPTY_CHAR)
+            {
+                empty_spaces += 1;
+                continue;
+            }
+
+            // to the right
+            for (short shift = 1; shift < 5; shift++)
+            {
+                if (column + shift > BOARD_SIZE - 1 || board[row][column + shift] != curr_char)
+                {
+                    break;
+                }
+                if (shift == 4)
+                {
+                    return curr_char == 'X' ? XS_WON : OS_WON;
+                }
+            }
+
+            // down
+            for (short shift = 1; shift < 5; shift++)
+            {
+                if (row + shift > BOARD_SIZE - 1 || board[row + shift][column] != curr_char)
+                {
+                    break;
+                }
+                if (shift == 4)
+                {
+                    return curr_char == 'X' ? XS_WON : OS_WON;
+                }
+            }
+
+            // diagonally to the right
+            for (short shift = 1; shift < 5; shift++)
+            {
+                if (column + shift > BOARD_SIZE - 1
+                || row + shift > BOARD_SIZE - 1
+                || board[row + shift][column + shift] != curr_char)
+                {
+                    break;
+                }
+                if (shift == 4)
+                {
+                    return curr_char == 'X' ? XS_WON : OS_WON;
+                }
+            }
+
+            // diagonally to the left
+            for (short shift = 1; shift < 5; shift++)
+            {
+                if (row + shift > BOARD_SIZE - 1
+                    || column - shift < 0
+                    || board[row + shift][column - shift] != curr_char)
+                {
+                    break;
+                }
+                if (shift == 4)
+                {
+                    return curr_char == 'X' ? XS_WON : OS_WON;
+                }
+            }
+        }
+    }
+    if (empty_spaces == 0)
+    {
+        return DRAW;
+    }
+    return NOBODY_WON;
     UNUSED(board);
-    return XS_WON;
 }
 
 void print_game_board(char board[BOARD_SIZE][BOARD_SIZE])

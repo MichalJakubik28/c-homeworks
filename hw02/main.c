@@ -1,6 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define ALL_PLAYERS (-1)
+#define CARDS_OK 0
+#define CARDS_ERROR 1
+#define NO_CARDS 2
 
+char store_cards(char value, char color, int players, int player_number, char cards[players][13][4]);
+int read_input_cards(int players, char cards[players][13][4]);
+void find_best_combination(char best_cards[6], char player_cards[13][4]);
+void straight_flush(char best_cards[6], char cards[13][4]);
+void four_of_a_kind(char best_cards[6], char cards[13][4]);
+void full_house(char best_cards[6], char cards[13][4]);
+void flush(char best_cards[6], char cards[13][4]);
+void straight(char best_cards[6], char cards[13][4]);
+void three_of_a_kind(char best_cards[6], char cards[13][4]);
+void two_pair(char best_cards[6], char cards[13][4]);
+void pair(char best_cards[6], char cards[13][4]);
+int compare_players(int former_best, int competitor, int players, char best_cards[players][6], char *draw);
+int mod(int a, int b);
+char n_of_a_kind(char cards[13][4], int n, char forbidden);
+void compare_and_replace(size_t length, int current_highest[length], const int candidate[length]);
+void fill_with_highest(char best_cards[6], char cards[13][4], int forbidden, int empty_amount);
 
 /* Parse the number of players at the table for the bonus extension.
  * IMPORTANT: Do not modify this function! */
@@ -26,10 +46,511 @@ int main(int argc, char **argv)
      * invalid program arguments. The validation is left up to you. */
     (void) players;
 
+    while(1) {
 
-    /* TODO:
-     * Your implementation goes here.
-     * Feel free to define your own functions. */
+        // cards - players X value X color
+        char cards[players][13][4];
+        char *pcards = (char *) cards;
+        for (int i = 0; i < 13 * 4 * players; i++) {
+            *pcards = 0;
+            pcards += 1;
+        }
+        pcards = (char *) cards;
 
-    return 0;
+        // read cards from input
+        switch (read_input_cards(players, cards)) {
+            case NO_CARDS: return 0;
+            case CARDS_ERROR: return 1;
+            default: break;
+        }
+
+        // array of best combination player X combination, strongest 5 card combination
+        char best_combinations[players][6];
+        char *pbest_combinations = (char *) best_combinations;
+        for (int i = 0; i < 6 * players; i++) {
+            *pbest_combinations = -1;
+            pbest_combinations += 1;
+        }
+
+        // find best combination for all players
+        for (int i = 0; i < players; i++) {
+            find_best_combination(best_combinations[i], cards[i]);
+        }
+
+        // find best player
+        int best_player = 0;
+        char draw = 0;
+        for (int competitor = 1; competitor < players; competitor++) {
+            best_player = compare_players(best_player, competitor, players, best_combinations, &draw);
+        }
+        if (draw == 1) {
+            printf("Draw\n");
+            continue;
+        }
+        printf("Player %d\n", best_player + 1);
+    }
+}
+
+int compare_players(int former_best, int competitor, int players, char best_cards[players][6], char *draw)
+{
+    if (best_cards[former_best][0] != best_cards[competitor][0]) {
+        return best_cards[former_best][0] > best_cards[competitor][0] ? former_best : competitor;
+    }
+
+    for (int i = 1; i < 6; i++) {
+        if (best_cards[former_best][i] != best_cards[competitor][i]) {
+            if (best_cards[former_best][i] > best_cards[competitor][i]) {
+                return former_best;
+            }
+            *draw = 0;
+            return  competitor;
+        }
+    }
+
+    *draw = 1;
+    return competitor;
+}
+
+void find_best_combination(char best_cards[6], char player_cards[13][4])
+{
+    straight_flush(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 8;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+        return;
+    }
+
+    four_of_a_kind(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 7;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+        return;
+    }
+
+    full_house(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 6;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+        return;
+    }
+
+    flush(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 5;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+        return;
+    }
+
+    straight(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 4;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+        return;
+    }
+
+    three_of_a_kind(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 3;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+        return;
+    }
+    two_pair(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 2;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        putchar('\n');
+    }
+    pair(best_cards, player_cards);
+    if (best_cards[1] != -1) {
+        best_cards[0] = 1;
+        for (int i = 0; i < 6; i++){
+            printf("%d ", best_cards[i]);
+        }
+        return;
+    }
+    fill_with_highest(best_cards, player_cards, -1, 5);
+    best_cards[0] = 0;
+    for (int i = 0; i < 6; i++){
+        printf("%d ", best_cards[i]);
+    }
+}
+
+int read_input_cards(int players, char cards[players][13][4])
+{
+    char card_value = 0;
+    char card_color = 0;
+
+    // read player cards
+    for (int i = 0; i < players; i++) {
+        for (int j = 0; j < 2; j++) {
+            int scanned = scanf(" %[2-9,T,J,Q,K,A]%[h,d,s,c]", &card_value, &card_color);
+            if (scanned == EOF && i == 0 && j == 0) {
+                printf("DONE");
+                return NO_CARDS;
+            }
+            if (scanned != 2) {
+                fprintf(stderr, "Error reading card %d of player %d", j + 1, i + 1);
+                return CARDS_ERROR;
+            }
+            if (j == 0) {
+                int whitespaces = 0;
+                scanf(" %n", &whitespaces);
+                if (whitespaces == 0) {
+                    fprintf(stderr, "No whitespace after first card of player %d", i+1);
+                    return CARDS_ERROR;
+                }
+            }
+            // value and color conversion
+            if (store_cards(card_value, card_color, players, i, cards) == CARDS_ERROR) {
+                return CARDS_ERROR;
+            }
+        }
+        int newline = getchar();
+        if (newline != '\n') {
+            fprintf(stderr, "Wrong separator of player %d", i+1);
+            return CARDS_ERROR;
+        }
+    }
+
+    // read table cards
+    for (int j = 0; j < 5; j++) {
+        int scanned = scanf(" %[2-9,T,J,Q,K,A]%[h,d,s,c]", &card_value, &card_color);
+        if (scanned != 2) {
+            fprintf(stderr, "Error reading table card %d", j+1);
+            return 1;
+        }
+        if (j != 4) {
+            int whitespaces = 0;
+            scanf(" %n", &whitespaces);
+            if (whitespaces == 0) {
+                fprintf(stderr, "No whitespace after table card %d", j);
+                return 1;
+            }
+        }
+        // value and color conversion
+        if (store_cards(card_value, card_color, players, ALL_PLAYERS, cards) == CARDS_ERROR) {
+            return CARDS_ERROR;
+        }
+    }
+    int newline = getchar();
+    if (newline != '\n') {
+        fprintf(stderr, "Wrong separator at end of table cards");
+        return 1;
+    }
+
+    return CARDS_OK;
+}
+
+char store_cards(char value, char color, int players, int player_number, char cards[players][13][4])
+{
+    int value_index = -1;
+    switch (value) {
+        case 'A': value_index = 12; break;
+        case 'K': value_index = 11; break;
+        case 'Q': value_index = 10; break;
+        case 'J': value_index = 9; break;
+        case 'T': value_index = 8; break;
+        default: value_index = value - 50; break;   // convert ascii numbers to indices 0-7
+    }
+
+    int color_index = -1;
+    switch (color) {
+        case 'c': color_index = 3; break;
+        case 's': color_index = 2; break;
+        case 'd': color_index = 1; break;
+        case 'h': color_index = 0; break;
+        default: break;
+    }
+
+    if (value_index == -1 || color_index == -1 || player_number > players - 1 ) {
+        fprintf(stderr, "Invalid index or player number");
+        return CARDS_ERROR;
+    }
+
+    for (int i = 0; i < players; i++) {
+        if (cards[i][value_index][color_index] == 1) {
+            fprintf(stderr, "Duplicate cards detected");
+            return CARDS_ERROR;
+        }
+    }
+
+    if (player_number == ALL_PLAYERS) {
+        for (int i = 0; i < players; i++) {
+            cards[i][value_index][color_index] = 1;
+        }
+        return CARDS_OK;
+    }
+
+    cards[player_number][value_index][color_index] = 1;
+    return CARDS_OK;
+}
+
+void straight_flush(char best_cards[6], char cards[13][4])
+{
+    for (int color = 0; color < 4; color++) {
+        for (char value = 12; value >= 3; value--) {
+            for (char order = 0; order <= 4; order++) {
+                if (cards[mod((value - order), 13)][color] != 1) {
+                    break;
+                }
+
+                if (order == 4 && cards[mod((value - order), 13)][color] == 1) {
+
+                    // case of royal straight flush
+                    if (mod((value - order), 13) == 12) {
+                        for (int i = 6; i > 0; i--) {
+                            best_cards[i] = (char) (i);
+                        }
+                        return;
+                    }
+
+                    for (int i = 5; i > 0; i--) {
+                        best_cards[6-i] = (char) (value - order + i + 1);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void four_of_a_kind(char best_cards[6], char cards[13][4])
+{
+    char value = n_of_a_kind(cards, 4, -1);
+
+    if (value == -1) {
+        return;
+    }
+
+    for (int i = 0; i < 5; i++) {
+        best_cards[i] = (char) value;
+    }
+
+    for (int high = 12; high >= 0; high--) {
+        for (int high_color = 0; high_color < 4; high_color++) {
+            if (cards[high][high_color] == 1 && high != value) {
+                best_cards[5] = (char) high;
+                return;
+            }
+        }
+    }
+
+}
+
+void full_house(char best_cards[6], char cards[13][4])
+{
+    char three_of_a_kind = n_of_a_kind(cards, 3, -1);
+    if (three_of_a_kind == -1) {
+        return;
+    }
+    char two_pair = n_of_a_kind(cards, 2, three_of_a_kind);
+    if (two_pair == -1) {
+        return;
+    }
+    for (int i = 1; i < 4; i++) {
+        best_cards[i] = (char) three_of_a_kind;
+    }
+    for (int i = 4; i < 6; i++) {
+        best_cards[i] = (char) two_pair;
+    }
+}
+
+void flush(char best_cards[6], char cards[13][4])
+{
+    int filled = 0;
+    int highest[5] = {-1, -1, -1, -1, -1};
+    int candidate[5] = {-1, -1, -1, -1, -1};
+
+    for (int color = 0; color < 4; color++) {
+        for (int value = 12; value >= 0; value--) {
+            if (filled == 5) {
+                break;
+            }
+            if (cards[value][color] == 1) {
+                candidate[filled] = value;
+                filled += 1;
+            }
+        }
+        if (filled == 5) {
+            compare_and_replace(5, highest, candidate);
+        }
+        filled = 0;
+    }
+
+    for (int i = 1; i < 6; i++) {
+        best_cards[i] = (char) highest[i - 1];
+    }
+}
+
+void compare_and_replace(size_t length, int current_highest[length], const int candidate[length])
+{
+    for (int i = 0; i < 6; i++) {
+        if (candidate[i] < current_highest[i]) {
+            return;
+        }
+        if (candidate[i] > current_highest[i]) {
+            for (int j = i; j < 6; j++) {
+                current_highest[i] = candidate[i];
+            }
+        }
+    }
+}
+
+char n_of_a_kind(char cards[13][4], int n, char forbidden)
+{
+    int same_count = 0;
+    for (int value = 12; value >= 0; value--) {
+        if (value == forbidden) {
+            continue;
+        }
+        for (int color = 0; color < 4; color++) {
+            if (cards[value][color] == 1) {
+                same_count += 1;
+            }
+            if (same_count == n) {
+                return (char) value;
+            }
+        }
+        same_count = 0;
+    }
+
+    return -1;
+}
+
+void straight(char best_cards[6], char cards[13][4])
+{
+    for (int color = 0; color < 4; color++) {
+        for (int value = 12; value >= 0; value--) {
+            putchar(cards[value][color] + 48);
+        }
+        putchar('\n');
+    }
+    int consecutive = 0;
+    for (char value = 12; value >= 3; value--) {
+
+        for (char order = 0; order <= 4; order++) {
+            for (int color = 0; color < 4; color++) {
+                if (cards[mod((value - order), 13)][color] == 1) {
+                    consecutive += 1;
+                    break;
+                }
+            }
+            if (consecutive != order + 1) {
+                break;
+            }
+        }
+
+        if (consecutive == 5) {
+
+            // case of royal broadway straight
+            if (mod((value - 5), 13) == 12) {
+                for (int i = 6; i > 0; i--) {
+                    best_cards[i] = (char) (i);
+                }
+                return;
+            }
+
+            for (int i = 5; i > 0; i--) {
+                best_cards[6-i] = (char) (value - 5 + i + 1);
+            }
+            return;
+        }
+        consecutive = 0;
+    }
+}
+
+void three_of_a_kind(char best_cards[6], char cards[13][4])
+{
+    char three = n_of_a_kind(cards, 3, -1);
+    if (three != -1) {
+        for (int i = 1; i < 4; i++) {
+            best_cards[i] = three;
+        }
+        fill_with_highest(best_cards, cards, three, 2);
+    }
+}
+
+void fill_with_highest(char best_cards[6], char cards[13][4], int forbidden, int empty_amount)
+{
+    char filled = 0;
+    for (int value = 12; value >= 0; value--) {
+        for (int color = 0; color < 4; color++) {
+            if (cards[value][color] == 1 && value != forbidden) {
+                best_cards[filled + (6 - empty_amount)] = (char) value;
+                filled += 1;
+                if (filled == empty_amount) {
+                    return;
+                }
+                break;
+            }
+        }
+    }
+}
+
+void two_pair(char best_cards[6], char cards[13][4])
+{
+    char pair1 = n_of_a_kind(cards, 2, -1);
+    if (pair1 == -1) {
+        return;
+    }
+
+    char pair2 = n_of_a_kind(cards, 2, pair1);
+    if (pair2 == -1) {
+        return;
+    }
+
+    best_cards[1] = pair1;
+    best_cards[2] = pair1;
+    best_cards[3] = pair2;
+    best_cards[4] = pair2;
+
+    for (int value = 12; value >= 0; value--) {
+        for (int color = 0; color < 4; color++) {
+            if (cards[value][color] == 1 && value != pair1 && value != pair2) {
+                best_cards[5] = (char) value;
+                return;
+            }
+        }
+    }
+}
+
+void pair(char best_cards[6], char cards[13][4])
+{
+    char pair = n_of_a_kind(cards, 2, -1);
+    if (pair == -1) {
+        return;
+    }
+    best_cards[1] = pair;
+    best_cards[2] = pair;
+    fill_with_highest(best_cards, cards, pair, 3);
+}
+
+// modulo of a number because C's % is a remainder, not modulo
+int mod(int a, int b)
+{
+    int result = a % b;
+    if (result < 0) {
+        result = b + result;
+    }
+    return result;
 }

@@ -116,87 +116,53 @@ void find_best_combination(char best_cards[6], char player_cards[13][4])
     straight_flush(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 8;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     four_of_a_kind(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 7;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     full_house(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 6;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     flush(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 5;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     straight(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 4;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     three_of_a_kind(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 3;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
+
     two_pair(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 2;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     pair(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 1;
-//        for (int i = 0; i < 6; i++){
-//            printf("%d ", best_cards[i]);
-//        }
-//        putchar('\n');
         return;
     }
 
     fill_with_highest(best_cards, player_cards, -1, 5);
     best_cards[0] = 0;
-//    for (int i = 0; i < 6; i++){
-//        printf("%d ", best_cards[i]);
-//    }
 }
 
 int read_input_cards(int players, char cards[players][13][4])
@@ -207,20 +173,19 @@ int read_input_cards(int players, char cards[players][13][4])
     // read player cards
     for (int i = 0; i < players; i++) {
         for (int j = 0; j < 2; j++) {
-            int scanned = scanf(" %[2-9,T,J,Q,K,A]%[h,d,s,c]", &card_value, &card_color);
+            int scanned = scanf(" %c%c", &card_value, &card_color);
             if (scanned == EOF && i == 0 && j == 0) {
-//                printf("DONE");
                 return NO_CARDS;
             }
             if (scanned != 2) {
-                fprintf(stderr, "Error reading card %d of player %d", j + 1, i + 1);
+                fprintf(stderr, "Error reading card %d of player %d\n", j + 1, i + 1);
                 return CARDS_ERROR;
             }
             if (j == 0) {
                 int whitespaces = 0;
                 scanf(" %n", &whitespaces);
                 if (whitespaces == 0) {
-                    fprintf(stderr, "No whitespace after first card of player %d", i+1);
+                    fprintf(stderr, "No whitespace after first card of player %d\n", i+1);
                     return CARDS_ERROR;
                 }
             }
@@ -231,23 +196,23 @@ int read_input_cards(int players, char cards[players][13][4])
         }
         int newline = getchar();
         if (newline != '\n') {
-            fprintf(stderr, "Wrong separator of player %d", i+1);
+            fprintf(stderr, "Wrong separator of player %d\n", i+1);
             return CARDS_ERROR;
         }
     }
 
     // read table cards
     for (int j = 0; j < 5; j++) {
-        int scanned = scanf(" %[2-9,T,J,Q,K,A]%[h,d,s,c]", &card_value, &card_color);
+        int scanned = scanf(" %c%c", &card_value, &card_color);
         if (scanned != 2) {
-            fprintf(stderr, "Error reading table card %d", j+1);
+            fprintf(stderr, "Error reading table card %d\n", j+1);
             return 1;
         }
         if (j != 4) {
             int whitespaces = 0;
             scanf(" %n", &whitespaces);
             if (whitespaces == 0) {
-                fprintf(stderr, "No whitespace after table card %d", j);
+                fprintf(stderr, "No whitespace after table card %d\n", j);
                 return 1;
             }
         }
@@ -258,7 +223,7 @@ int read_input_cards(int players, char cards[players][13][4])
     }
     int newline = getchar();
     if (newline != '\n') {
-        fprintf(stderr, "Wrong separator at end of table cards");
+        fprintf(stderr, "Wrong separator at end of table cards\n");
         return 1;
     }
 
@@ -274,7 +239,11 @@ char store_cards(char value, char color, int players, int player_number, char ca
         case 'Q': value_index = 10; break;
         case 'J': value_index = 9; break;
         case 'T': value_index = 8; break;
-        default: value_index = value - 50; break;   // convert ascii numbers to indices 0-7
+        default: break;
+    }
+
+    if (value >= '2' && value <= '9') {
+        value_index = value - 50;           // convert ascii numbers to indices 0-7
     }
 
     int color_index = -1;
@@ -287,13 +256,13 @@ char store_cards(char value, char color, int players, int player_number, char ca
     }
 
     if (value_index == -1 || color_index == -1 || player_number > players - 1 ) {
-        fprintf(stderr, "Invalid index or player number");
+        fprintf(stderr, "Invalid index or player number\n");
         return CARDS_ERROR;
     }
 
     for (int i = 0; i < players; i++) {
         if (cards[i][value_index][color_index] == 1) {
-            fprintf(stderr, "Duplicate cards detected");
+            fprintf(stderr, "Duplicate cards detected\n");
             return CARDS_ERROR;
         }
     }
@@ -443,12 +412,6 @@ char n_of_a_kind(char cards[13][4], int n, char forbidden)
 
 void straight(char best_cards[6], char cards[13][4])
 {
-//    for (int color = 0; color < 4; color++) {
-//        for (int value = 12; value >= 0; value--) {
-//            putchar(cards[value][color] + 48);
-//        }
-//        putchar('\n');
-//    }
     int consecutive = 0;
     for (char value = 12; value >= 3; value--) {
 

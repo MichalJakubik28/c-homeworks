@@ -116,83 +116,87 @@ void find_best_combination(char best_cards[6], char player_cards[13][4])
     straight_flush(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 8;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
 
     four_of_a_kind(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 7;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
 
     full_house(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 6;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
 
     flush(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 5;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
 
     straight(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 4;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
 
     three_of_a_kind(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 3;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
     two_pair(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 2;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
-        putchar('\n');
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
+        return;
     }
+
     pair(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 1;
-        for (int i = 0; i < 6; i++){
-            printf("%d ", best_cards[i]);
-        }
+//        for (int i = 0; i < 6; i++){
+//            printf("%d ", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
+
     fill_with_highest(best_cards, player_cards, -1, 5);
     best_cards[0] = 0;
-    for (int i = 0; i < 6; i++){
-        printf("%d ", best_cards[i]);
-    }
+//    for (int i = 0; i < 6; i++){
+//        printf("%d ", best_cards[i]);
+//    }
 }
 
 int read_input_cards(int players, char cards[players][13][4])
@@ -205,7 +209,7 @@ int read_input_cards(int players, char cards[players][13][4])
         for (int j = 0; j < 2; j++) {
             int scanned = scanf(" %[2-9,T,J,Q,K,A]%[h,d,s,c]", &card_value, &card_color);
             if (scanned == EOF && i == 0 && j == 0) {
-                printf("DONE");
+//                printf("DONE");
                 return NO_CARDS;
             }
             if (scanned != 2) {
@@ -439,12 +443,12 @@ char n_of_a_kind(char cards[13][4], int n, char forbidden)
 
 void straight(char best_cards[6], char cards[13][4])
 {
-    for (int color = 0; color < 4; color++) {
-        for (int value = 12; value >= 0; value--) {
-            putchar(cards[value][color] + 48);
-        }
-        putchar('\n');
-    }
+//    for (int color = 0; color < 4; color++) {
+//        for (int value = 12; value >= 0; value--) {
+//            putchar(cards[value][color] + 48);
+//        }
+//        putchar('\n');
+//    }
     int consecutive = 0;
     for (char value = 12; value >= 3; value--) {
 

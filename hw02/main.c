@@ -140,6 +140,10 @@ void find_best_combination(char best_cards[6], char player_cards[13][4])
     straight(best_cards, player_cards);
     if (best_cards[1] != -1) {
         best_cards[0] = 4;
+//        for (int i = 0; i < 6; i++) {
+//            printf("%d", best_cards[i]);
+//        }
+//        putchar('\n');
         return;
     }
 
@@ -206,14 +210,14 @@ int read_input_cards(int players, char cards[players][13][4])
         int scanned = scanf(" %c%c", &card_value, &card_color);
         if (scanned != 2) {
             fprintf(stderr, "Error reading table card %d\n", j+1);
-            return 1;
+            return CARDS_ERROR;
         }
         if (j != 4) {
             int whitespaces = 0;
             scanf(" %n", &whitespaces);
             if (whitespaces == 0) {
                 fprintf(stderr, "No whitespace after table card %d\n", j);
-                return 1;
+                return CARDS_ERROR;
             }
         }
         // value and color conversion
@@ -224,7 +228,7 @@ int read_input_cards(int players, char cards[players][13][4])
     int newline = getchar();
     if (newline != '\n') {
         fprintf(stderr, "Wrong separator at end of table cards\n");
-        return 1;
+        return CARDS_ERROR;
     }
 
     return CARDS_OK;
@@ -289,16 +293,17 @@ void straight_flush(char best_cards[6], char cards[13][4])
 
                 if (order == 4 && cards[mod((value - order), 13)][color] == 1) {
 
-                    // case of royal straight flush
+                    // case of steel wheel
                     if (mod((value - order), 13) == 12) {
-                        for (int i = 6; i > 0; i--) {
-                            best_cards[i] = (char) (i);
+                        for (int i = 1; i < 5; i++) {
+                            best_cards[i] = (char) (4 - i);
                         }
+                        best_cards[5] = 12;
                         return;
                     }
 
                     for (int i = 5; i > 0; i--) {
-                        best_cards[6-i] = (char) (value - order + i + 1);
+                        best_cards[6-i] = (char) (value - order + i - 1);
                     }
                     return;
                 }
@@ -412,6 +417,16 @@ char n_of_a_kind(char cards[13][4], int n, char forbidden)
 
 void straight(char best_cards[6], char cards[13][4])
 {
+//    for (int j = 0;  j < 4 ; j++) {
+//        for (int i = 12; i >= 0; i--) {
+//            if (cards[i][j] == 1) {
+//                putchar('1');
+//            } else {
+//                putchar('0');
+//            }
+//        }
+//        putchar('\n');
+//    }
     int consecutive = 0;
     for (char value = 12; value >= 3; value--) {
 
@@ -429,16 +444,19 @@ void straight(char best_cards[6], char cards[13][4])
 
         if (consecutive == 5) {
 
-            // case of royal broadway straight
-            if (mod((value - 5), 13) == 12) {
-                for (int i = 6; i > 0; i--) {
-                    best_cards[i] = (char) (i);
+            // case of baby straight
+            if (mod((value - 4), 13) == 12) {
+                for (int i = 1; i < 5; i++) {
+                    best_cards[i] = (char) (4 - i);
                 }
+                // Ace as last card (same representation as if it was a high
+                // card does not matter, numbers before will always decide the winner)
+                best_cards[5] = 12;
                 return;
             }
 
-            for (int i = 5; i > 0; i--) {
-                best_cards[6-i] = (char) (value - 5 + i + 1);
+            for (int i = 5; i >= 0; i--) {
+                best_cards[6-i] = (char) (value - consecutive + i);
             }
             return;
         }

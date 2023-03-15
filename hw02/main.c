@@ -44,7 +44,10 @@ int main(int argc, char **argv)
      * If you intend to implement the bonus, «REMOVE» the following line and use
      * the ‹players› variable. It either contains the amount of players, or 0 on
      * invalid program arguments. The validation is left up to you. */
-    (void) players;
+//    (void) players;
+    if (players == 0) {
+        return 1;
+    }
 
     while(1) {
 
@@ -93,17 +96,20 @@ int main(int argc, char **argv)
 
 int compare_players(int former_best, int competitor, int players, char best_cards[players][6], char *draw)
 {
-    if (best_cards[former_best][0] != best_cards[competitor][0]) {
-        return best_cards[former_best][0] > best_cards[competitor][0] ? former_best : competitor;
-    }
+//    for (int i = 0; i < players; i++) {
+//        for (int j = 0; j < 6; j++) {
+//            printf("%d ", best_cards[i][j]);
+//        }
+//        putchar('\n');
+//    }
 
-    for (int i = 1; i < 6; i++) {
+    for (int i = 0; i < 6; i++) {
         if (best_cards[former_best][i] != best_cards[competitor][i]) {
             if (best_cards[former_best][i] > best_cards[competitor][i]) {
                 return former_best;
             }
             *draw = 0;
-            return  competitor;
+            return competitor;
         }
     }
 

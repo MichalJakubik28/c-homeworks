@@ -376,7 +376,6 @@ void full_house(char best_cards[6], char cards[13][4])
 void flush(char best_cards[6], char cards[13][4])
 {
     int filled = 0;
-    int highest[5] = { -1, -1, -1, -1, -1 };
     int candidate[5] = { -1, -1, -1, -1, -1 };
 
     for (int color = 0; color < 4; color++) {
@@ -386,31 +385,15 @@ void flush(char best_cards[6], char cards[13][4])
             }
             if (cards[value][color] == 1) {
                 candidate[filled] = value;
-                filled += 1;
+                filled++;
             }
         }
         if (filled == 5) {
-            compare_and_replace(5, highest, candidate);
-        }
-        filled = 0;
-    }
-
-    for (int i = 1; i < 6; i++) {
-        best_cards[i] = (char) highest[i - 1];
-    }
-}
-
-void compare_and_replace(size_t length, int current_highest[length], const int candidate[length])
-{
-    for (int i = 0; i < 6; i++) {
-        if (candidate[i] < current_highest[i]) {
-            return;
-        }
-        if (candidate[i] > current_highest[i]) {
-            for (int j = i; j < 6; j++) {
-                current_highest[i] = candidate[i];
+            for (int i = 1; i < 6; i++) {
+                best_cards[i] = (char) candidate[i - 1];
             }
         }
+        filled = 0;
     }
 }
 

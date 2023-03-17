@@ -114,14 +114,54 @@ void string_split(const char *original, char result[50][256], size_t *size, char
     if (original == NULL || size == NULL || result == NULL) {
         return;
     }
+
     int counter = 0;
     const char *start = original;
-    char *nearest_delim = strchr(original, delim);
+    char *nearest_delim = strchr(start, delim);
+
+    if (original[0] == 0) {
+        *size = 0;
+        return;
+    }
+
     while (nearest_delim != NULL) {
-        long diff = start - nearest_delim;
+        long diff = nearest_delim - start;
+        if (diff > 255) {
+            return;
+        }
         strncpy(result[counter], start, diff);
         counter += 1;
         start = nearest_delim + 1;
-        nearest_delim = strchr(original, delim);
+        nearest_delim = strchr(start, delim);
+    }
+    strncpy(result[counter], start, strlen(original) < 256 ? strlen(original) : 255);
+    *size = counter + 1;
+}
+
+void string_insert_sort(char *string, int (*comparator)(char , char))
+{
+    if (string == NULL || comparator == NULL) {
+        return;
+    }
+
+    for (unsigned long i = 1; i < strlen(string); i++) {
+        char x = string[i];
+        unsigned long j = i;
+        while (j > 0 && comparator(string[j - 1], x) > 0) {
+            string[j] = string[j - 1];
+            j--;
+        }
+        string[j] = x;
+    }
+}
+
+void string_map(const char *string, void *result, void (*func)(void *, int, const char))
+{
+    if (string == NULL || result == NULL || func == NULL) {
+        return;
+    }
+
+    for (unsigned int i = 0; i < strlen(string); i++) {
+        func(result, i, string[i]);
     }
 }

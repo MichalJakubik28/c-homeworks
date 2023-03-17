@@ -76,4 +76,8 @@ size_t string_count_string_in_array(const char *array[], const char *string);
  */
 void string_split(const char *original, char result[50][256], size_t *size, char delim);
 
+
+void string_insert_sort(char *string, int (*comparator)(char , char));
+
+void string_map(const char *string, void *result, void (*func)(void *, int, const char));
 #endif

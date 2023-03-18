@@ -19,7 +19,6 @@ void pair(char best_cards[6], char cards[13][4]);
 int compare_players(int former_best, int competitor, int players, char best_cards[players][6], char *draw);
 int mod(int a, int b);
 char n_of_a_kind(char cards[13][4], int n, char forbidden);
-void compare_and_replace(size_t length, int current_highest[length], const int candidate[length]);
 void fill_with_highest(char best_cards[6], char cards[13][4], int forbidden, int empty_amount);
 
 /* Parse the number of players at the table for the bonus extension.
@@ -46,6 +45,7 @@ int main(int argc, char **argv)
      * invalid program arguments. The validation is left up to you. */
     //    (void) players;
     if (players <= 0 || players > 8) {
+        fprintf(stderr, "Invalid players argument\n");
         return 1;
     }
 

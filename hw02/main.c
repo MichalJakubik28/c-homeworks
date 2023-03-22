@@ -1,25 +1,28 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #define ALL_PLAYERS (-1)
 #define CARDS_OK 0
 #define CARDS_ERROR 1
 #define NO_CARDS 2
 
-char store_cards(char value, char color, int players, int player_number, char cards[players][13][4]);
-int read_input_cards(int players, char cards[players][13][4]);
-void find_best_combination(char best_cards[6], char player_cards[13][4]);
-void straight_flush(char best_cards[6], char cards[13][4]);
-void four_of_a_kind(char best_cards[6], char cards[13][4]);
-void full_house(char best_cards[6], char cards[13][4]);
-void flush(char best_cards[6], char cards[13][4]);
-void straight(char best_cards[6], char cards[13][4]);
-void three_of_a_kind(char best_cards[6], char cards[13][4]);
-void two_pair(char best_cards[6], char cards[13][4]);
-void pair(char best_cards[6], char cards[13][4]);
-int compare_players(int former_best, int competitor, int players, char best_cards[players][6], char *draw);
+char convert_and_store(char value, char color, int players, int player_number, bool cards[players][13][4]);
+int read_input_cards(int players, bool cards[players][13][4]);
+void find_best_combination(char best_cards[6], const bool player_cards[13][4]);
+void straight_flush(char best_cards[6], const bool cards[13][4]);
+void four_of_a_kind(char best_cards[6], const bool cards[13][4]);
+void full_house(char best_cards[6], const bool cards[13][4]);
+void flush(char best_cards[6], const bool cards[13][4]);
+void straight(char best_cards[6], const bool cards[13][4]);
+void three_of_a_kind(char best_cards[6], const bool cards[13][4]);
+void two_pair(char best_cards[6], const bool cards[13][4]);
+void pair(char best_cards[6], const bool cards[13][4]);
+int compare_players(int former_best, int competitor, int players, const char best_cards[players][6], bool *draw);
+char n_of_a_kind(const bool cards[13][4], int n, char forbidden);
+void fill_with_highest(char best_cards[6], const bool cards[13][4], int forbidden, int empty_amount);
 int mod(int a, int b);
-char n_of_a_kind(char cards[13][4], int n, char forbidden);
-void fill_with_highest(char best_cards[6], char cards[13][4], int forbidden, int empty_amount);
 
 /* Parse the number of players at the table for the bonus extension.
  * IMPORTANT: Do not modify this function! */
@@ -45,17 +48,10 @@ int main(int argc, char **argv)
     }
 
     while (1) {
-        // cards - players X value X color
-        char cards[players][13][4];
-        for (int i = 0; i < players; i++) {
-            for (int j = 0; j < 13; j++) {
-                for (int k = 0; k < 4; k++) {
-                    cards[i][j][k] = 0;
-                }
-            }
-        }
+        // cards: players * value * color
+        bool cards[players][13][4];
+        memset(cards, false, players * 13 * 4);
 
-        // read cards from input
         switch (read_input_cards(players, cards)) {
         case NO_CARDS:
             return 0;
@@ -65,26 +61,22 @@ int main(int argc, char **argv)
             break;
         }
 
-        // array of best combination player X combination, strongest 5 card combination
+        // array of combination rank and 5 strongest cards for each player
         char best_combinations[players][6];
-        char *pbest_combinations = (char *) best_combinations;
-        for (int i = 0; i < 6 * players; i++) {
-            *pbest_combinations = -1;
-            pbest_combinations += 1;
-        }
+        memset(best_combinations, -1, players * 6);
 
         // find best combination for all players
         for (int i = 0; i < players; i++) {
             find_best_combination(best_combinations[i], cards[i]);
         }
 
-        // find best player
+        // compare players
         int best_player = 0;
-        char draw = 0;
+        bool draw = false;
         for (int competitor = 1; competitor < players; competitor++) {
             best_player = compare_players(best_player, competitor, players, best_combinations, &draw);
         }
-        if (draw == 1) {
+        if (draw) {
             printf("Draw\n");
             continue;
         }
@@ -92,82 +84,44 @@ int main(int argc, char **argv)
     }
 }
 
-int compare_players(int former_best, int competitor, int players, char best_cards[players][6], char *draw)
+/* Compares best cards of two players and returns the number of the winner, sets */
+int compare_players(const int former_best, const int competitor, const int players, const char best_cards[players][6], bool *draw)
 {
     for (int i = 0; i < 6; i++) {
         if (best_cards[former_best][i] != best_cards[competitor][i]) {
             if (best_cards[former_best][i] > best_cards[competitor][i]) {
                 return former_best;
             }
-            *draw = 0;
+            *draw = false;
             return competitor;
         }
     }
 
-    *draw = 1;
+    *draw = true;
     return competitor;
 }
 
-void find_best_combination(char best_cards[6], char player_cards[13][4])
+void find_best_combination(char best_cards[6], const bool player_cards[13][4])
 {
-    straight_flush(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 8;
-        return;
+    void (*check_combination[])(char[], const bool[13][4]) = { &pair, &two_pair, &three_of_a_kind, &straight, &flush, &full_house, &four_of_a_kind, &straight_flush };
+    for (int i = 7; i >= 0; i--) {
+        check_combination[i](best_cards, player_cards);
+        if (best_cards[1] != -1) {
+            best_cards[0] = (char) (i + 1);
+            return;
+        }
     }
 
-    four_of_a_kind(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 7;
-        return;
-    }
-
-    full_house(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 6;
-        return;
-    }
-
-    flush(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 5;
-        return;
-    }
-
-    straight(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 4;
-        return;
-    }
-
-    three_of_a_kind(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 3;
-        return;
-    }
-
-    two_pair(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 2;
-        return;
-    }
-
-    pair(best_cards, player_cards);
-    if (best_cards[1] != -1) {
-        best_cards[0] = 1;
-        return;
-    }
-
+    // no combination found, fill with highest cards
     fill_with_highest(best_cards, player_cards, -1, 5);
     best_cards[0] = 0;
 }
 
-int read_input_cards(int players, char cards[players][13][4])
+int read_input_cards(const int players, bool cards[players][13][4])
 {
     char card_value = 0;
     char card_color = 0;
 
-    // read player cards
     for (int i = 0; i < players; i++) {
         for (int j = 0; j < 2; j++) {
             int scanned = scanf(" %c%c", &card_value, &card_color);
@@ -187,7 +141,7 @@ int read_input_cards(int players, char cards[players][13][4])
                 }
             }
             // value and color conversion
-            if (store_cards(card_value, card_color, players, i, cards) == CARDS_ERROR) {
+            if (convert_and_store(card_value, card_color, players, i, cards) == CARDS_ERROR) {
                 return CARDS_ERROR;
             }
         }
@@ -199,22 +153,22 @@ int read_input_cards(int players, char cards[players][13][4])
     }
 
     // read table cards
-    for (int j = 0; j < 5; j++) {
+    for (int i = 0; i < 5; i++) {
         int scanned = scanf(" %c%c", &card_value, &card_color);
         if (scanned != 2) {
-            fprintf(stderr, "Error reading table card %d\n", j + 1);
+            fprintf(stderr, "Error reading table card %d\n", i + 1);
             return CARDS_ERROR;
         }
-        if (j != 4) {
+        if (i != 4) {
             int whitespaces = 0;
             scanf(" %n", &whitespaces);
             if (whitespaces == 0) {
-                fprintf(stderr, "No whitespace after table card %d\n", j);
+                fprintf(stderr, "No whitespace after table card %d\n", i + 1);
                 return CARDS_ERROR;
             }
         }
         // value and color conversion
-        if (store_cards(card_value, card_color, players, ALL_PLAYERS, cards) == CARDS_ERROR) {
+        if (convert_and_store(card_value, card_color, players, ALL_PLAYERS, cards) == CARDS_ERROR) {
             return CARDS_ERROR;
         }
     }
@@ -227,12 +181,15 @@ int read_input_cards(int players, char cards[players][13][4])
     return CARDS_OK;
 }
 
-char store_cards(char value, char color, int players, int player_number, char cards[players][13][4])
+/* Converts input to card and stores it */
+char convert_and_store(const char value, const char color, const int players, const int player_number, bool cards[players][13][4])
 {
-    if (players > 8 || players <= 0) {
+    if (players > 8 || players <= 1) {
         return CARDS_ERROR;
     }
+
     int value_index = -1;
+
     switch (value) {
     case 'A':
         value_index = 12;
@@ -253,8 +210,9 @@ char store_cards(char value, char color, int players, int player_number, char ca
         break;
     }
 
+    // convert ascii numbers to indices 0-7
     if (value >= '2' && value <= '9') {
-        value_index = value - 50; // convert ascii numbers to indices 0-7
+        value_index = value - 50;
     }
 
     int color_index = -1;
@@ -281,8 +239,8 @@ char store_cards(char value, char color, int players, int player_number, char ca
     }
 
     for (int i = 0; i < players; i++) {
-        char card = cards[i][value_index][color_index];
-        if (card == 1) {
+        bool card = cards[i][value_index][color_index];
+        if (card) {
             fprintf(stderr, "Duplicate cards detected\n");
             return CARDS_ERROR;
         }
@@ -290,31 +248,30 @@ char store_cards(char value, char color, int players, int player_number, char ca
 
     if (player_number == ALL_PLAYERS) {
         for (int i = 0; i < players; i++) {
-            cards[i][value_index][color_index] = 1;
+            cards[i][value_index][color_index] = true;
         }
         return CARDS_OK;
     }
 
-    cards[player_number][value_index][color_index] = 1;
+    cards[player_number][value_index][color_index] = true;
     return CARDS_OK;
 }
 
-void straight_flush(char best_cards[6], char cards[13][4])
+void straight_flush(char best_cards[6], const bool cards[13][4])
 {
     for (int color = 0; color < 4; color++) {
         for (char value = 12; value >= 3; value--) {
             for (char order = 0; order <= 4; order++) {
-                if (cards[mod((value - order), 13)][color] != 1) {
+                if (!cards[mod((value - order), 13)][color]) {
                     break;
                 }
 
-                if (order == 4 && cards[mod((value - order), 13)][color] == 1) {
+                if (order == 4 && cards[mod((value - order), 13)][color]) {
                     // case of steel wheel
                     if (mod((value - order), 13) == 12) {
-                        for (int i = 1; i < 5; i++) {
-                            best_cards[i] = (char) (4 - i);
+                        for (int i = 1; i < 6; i++) {
+                            best_cards[i] = (char) mod(4 - i, 13);
                         }
-                        best_cards[5] = 12;
                         return;
                     }
 
@@ -328,7 +285,7 @@ void straight_flush(char best_cards[6], char cards[13][4])
     }
 }
 
-void four_of_a_kind(char best_cards[6], char cards[13][4])
+void four_of_a_kind(char best_cards[6], const bool cards[13][4])
 {
     char value = n_of_a_kind(cards, 4, -1);
 
@@ -342,7 +299,7 @@ void four_of_a_kind(char best_cards[6], char cards[13][4])
 
     for (int high = 12; high >= 0; high--) {
         for (int high_color = 0; high_color < 4; high_color++) {
-            if (cards[high][high_color] == 1 && high != value) {
+            if (cards[high][high_color] && high != value) {
                 best_cards[5] = (char) high;
                 return;
             }
@@ -350,25 +307,29 @@ void four_of_a_kind(char best_cards[6], char cards[13][4])
     }
 }
 
-void full_house(char best_cards[6], char cards[13][4])
+void full_house(char best_cards[6], const bool cards[13][4])
 {
     char three_of_a_kind = n_of_a_kind(cards, 3, -1);
+
     if (three_of_a_kind == -1) {
         return;
     }
+
     char two_pair = n_of_a_kind(cards, 2, three_of_a_kind);
     if (two_pair == -1) {
         return;
     }
+
     for (int i = 1; i < 4; i++) {
         best_cards[i] = (char) three_of_a_kind;
     }
+
     for (int i = 4; i < 6; i++) {
         best_cards[i] = (char) two_pair;
     }
 }
 
-void flush(char best_cards[6], char cards[13][4])
+void flush(char best_cards[6], const bool cards[13][4])
 {
     int filled = 0;
     int candidate[5] = { -1, -1, -1, -1, -1 };
@@ -378,7 +339,7 @@ void flush(char best_cards[6], char cards[13][4])
             if (filled == 5) {
                 break;
             }
-            if (cards[value][color] == 1) {
+            if (cards[value][color]) {
                 candidate[filled] = value;
                 filled++;
             }
@@ -392,7 +353,8 @@ void flush(char best_cards[6], char cards[13][4])
     }
 }
 
-char n_of_a_kind(char cards[13][4], int n, char forbidden)
+/* Finds n of the same and also highest cards, omitting the forbidden value */
+char n_of_a_kind(const bool cards[13][4], const int n, const char forbidden)
 {
     int same_count = 0;
     for (int value = 12; value >= 0; value--) {
@@ -400,8 +362,8 @@ char n_of_a_kind(char cards[13][4], int n, char forbidden)
             continue;
         }
         for (int color = 0; color < 4; color++) {
-            if (cards[value][color] == 1) {
-                same_count += 1;
+            if (cards[value][color]) {
+                same_count++;
             }
             if (same_count == n) {
                 return (char) value;
@@ -413,17 +375,18 @@ char n_of_a_kind(char cards[13][4], int n, char forbidden)
     return -1;
 }
 
-void straight(char best_cards[6], char cards[13][4])
+void straight(char best_cards[6], const bool cards[13][4])
 {
     int consecutive = 0;
     for (char value = 12; value >= 3; value--) {
         for (char order = 0; order <= 4; order++) {
             for (int color = 0; color < 4; color++) {
-                if (cards[mod((value - order), 13)][color] == 1) {
-                    consecutive += 1;
+                if (cards[mod((value - order), 13)][color]) {
+                    consecutive++;
                     break;
                 }
             }
+            // cards are not consecutive
             if (consecutive != order + 1) {
                 break;
             }
@@ -432,12 +395,9 @@ void straight(char best_cards[6], char cards[13][4])
         if (consecutive == 5) {
             // case of baby straight
             if (mod((value - 4), 13) == 12) {
-                for (int i = 1; i < 5; i++) {
-                    best_cards[i] = (char) (4 - i);
+                for (int i = 1; i < 6; i++) {
+                    best_cards[i] = (char) (mod(4 - i, 13));
                 }
-                // Ace as last card (same representation as if it was a high
-                // card does not matter, numbers before will always decide the winner)
-                best_cards[5] = 12;
                 return;
             }
 
@@ -450,7 +410,7 @@ void straight(char best_cards[6], char cards[13][4])
     }
 }
 
-void three_of_a_kind(char best_cards[6], char cards[13][4])
+void three_of_a_kind(char best_cards[6], const bool cards[13][4])
 {
     char three = n_of_a_kind(cards, 3, -1);
     if (three != -1) {
@@ -461,14 +421,15 @@ void three_of_a_kind(char best_cards[6], char cards[13][4])
     }
 }
 
-void fill_with_highest(char best_cards[6], char cards[13][4], int forbidden, int empty_amount)
+/* Fills the best_cards array with highest cards of the player */
+void fill_with_highest(char best_cards[6], const bool cards[13][4], const int forbidden, const int empty_amount)
 {
     char filled = 0;
     for (int value = 12; value >= 0; value--) {
         for (int color = 0; color < 4; color++) {
-            if (cards[value][color] == 1 && value != forbidden) {
+            if (cards[value][color] && value != forbidden) {
                 best_cards[filled + (6 - empty_amount)] = (char) value;
-                filled += 1;
+                filled++;
                 if (filled == empty_amount) {
                     return;
                 }
@@ -478,7 +439,7 @@ void fill_with_highest(char best_cards[6], char cards[13][4], int forbidden, int
     }
 }
 
-void two_pair(char best_cards[6], char cards[13][4])
+void two_pair(char best_cards[6], const bool cards[13][4])
 {
     char pair1 = n_of_a_kind(cards, 2, -1);
     if (pair1 == -1) {
@@ -495,9 +456,10 @@ void two_pair(char best_cards[6], char cards[13][4])
     best_cards[3] = pair2;
     best_cards[4] = pair2;
 
+    // find the largest of the remaining cards
     for (int value = 12; value >= 0; value--) {
         for (int color = 0; color < 4; color++) {
-            if (cards[value][color] == 1 && value != pair1 && value != pair2) {
+            if (cards[value][color] && value != pair1 && value != pair2) {
                 best_cards[5] = (char) value;
                 return;
             }
@@ -505,7 +467,7 @@ void two_pair(char best_cards[6], char cards[13][4])
     }
 }
 
-void pair(char best_cards[6], char cards[13][4])
+void pair(char best_cards[6], const bool cards[13][4])
 {
     char pair = n_of_a_kind(cards, 2, -1);
     if (pair == -1) {
@@ -516,8 +478,8 @@ void pair(char best_cards[6], char cards[13][4])
     fill_with_highest(best_cards, cards, pair, 3);
 }
 
-// modulo of a number because C's % is a remainder, not modulo
-int mod(int a, int b)
+// module of a number because C's '%' operator is a remainder, not module
+int mod(const int a, const int b)
 {
     int result = a % b;
     if (result < 0) {

@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    while (1) {
+    while (true) {
         // cards: players * value * color
         bool cards[players][13][4];
         memset(cards, false, players * 13 * 4);
@@ -67,14 +67,14 @@ int main(int argc, char **argv)
 
         // find best combination for all players
         for (int i = 0; i < players; i++) {
-            find_best_combination(best_combinations[i], cards[i]);
+            find_best_combination(best_combinations[i], (const bool(*)[4]) cards[i]);
         }
 
         // compare players
         int best_player = 0;
         bool draw = false;
         for (int competitor = 1; competitor < players; competitor++) {
-            best_player = compare_players(best_player, competitor, players, best_combinations, &draw);
+            best_player = compare_players(best_player, competitor, players, (const char(*)[6]) best_combinations, &draw);
         }
         if (draw) {
             printf("Draw\n");
@@ -478,7 +478,7 @@ void pair(char best_cards[6], const bool cards[13][4])
     fill_with_highest(best_cards, cards, pair, 3);
 }
 
-// module of a number because C's '%' operator is a remainder, not module
+// modulo of a number because C's '%' operator is a remainder, not modulo
 int mod(const int a, const int b)
 {
     int result = a % b;

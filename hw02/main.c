@@ -39,13 +39,8 @@ int main(int argc, char **argv)
 {
     int players = parse_players(argc, argv);
 
-    /* TODO (BONUS):
-     * If you intend to implement the bonus, «REMOVE» the following line and use
-     * the ‹players› variable. It either contains the amount of players, or 0 on
-     * invalid program arguments. The validation is left up to you. */
-    //    (void) players;
-    if (players <= 0 || players > 8) {
-        fprintf(stderr, "Invalid players argument\n");
+    if (players <= 1 || players > 8) {
+        fprintf(stderr, "Invalid number of players\n");
         return 1;
     }
 

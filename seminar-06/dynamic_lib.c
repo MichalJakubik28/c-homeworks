@@ -20,26 +20,76 @@
 
 char *dyn_strcpy(const char *str)
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ UNUSED(str);
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    if (str == NULL) {
+        return NULL;
+    }
+
+    size_t length = strlen(str);
+    char *ptr = malloc(length);
+
+    if (ptr == NULL) {
+        return NULL;
+    }
+
+    strcpy(ptr, str);
+    return ptr;
 }
 
 char *dyn_strjoin(const char *pre, const char *post)
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ UNUSED(pre);
-    /* ! */ UNUSED(post);
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    if (pre == NULL || post == NULL) {
+        return NULL;
+    }
+
+    size_t length = strlen(pre) + strlen(post);
+    char *ptr = malloc(length);
+
+    if (ptr == NULL) {
+        return NULL;
+    }
+
+    strcpy(ptr, pre);
+    strcpy(ptr + strlen(pre), post);
+    return ptr;
 }
 
 char *read_line(void)
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    size_t reserved = 1;
+    size_t stored = 0;
+    char *ptr = malloc(1);
+    size_t free = 1;
+    char curr_char = getchar();
+    while (curr_char != EOF) {
+        if (free == 0) {
+            char *ptr2 = realloc(ptr, reserved << 1);
+            if (ptr2 == NULL) {
+                fprintf(stderr, "Failed to allocate memory");
+                return NULL;
+            }
+            reserved = reserved << 1;
+            ptr = ptr2;
+        }
+        if (curr_char == '\n') {
+            break;
+        }
+        ptr[stored] = curr_char;
+        free--;
+        stored++;
+        curr_char = getchar();
+    }
+    if (free == 0) {
+        char *ptr2 = realloc(ptr, reserved + 1);
+        if (ptr2 == NULL) {
+            fprintf(stderr, "Failed to allocate memory");
+            return NULL;
+        }
+        ptr = ptr2;
+        stored++;
+    }
+    ptr[stored] = 0;
+
+    return ptr;
 }
 
 void **dyn_alloc2d(size_t rows, const size_t row_sizes[rows])

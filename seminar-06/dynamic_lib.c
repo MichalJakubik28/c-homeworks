@@ -94,20 +94,45 @@ char *read_line(void)
 
 void **dyn_alloc2d(size_t rows, const size_t row_sizes[rows])
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ UNUSED(rows);
-    /* ! */ UNUSED(row_sizes);
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    assert(rows > 0);
+    assert(row_sizes != NULL);
+
+    void **array = malloc(rows * sizeof(void*));
+
+    if (array == NULL) {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < rows; i++) {
+        if (row_sizes[i] == 0) {
+            array[i] = NULL;
+            continue;
+        }
+        void *row = malloc(row_sizes[i]);
+
+        // cannot allocate memory for column
+        if (row == NULL) {
+            dyn_free2d(array, rows);
+            return NULL;
+        }
+        array[i] = row;
+    }
+
+    return array;
 }
 
 int dyn_free2d(void **memory, size_t rows)
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ UNUSED(rows);
-    /* ! */ UNUSED(memory);
-    /* ! */ NOT_IMPLEMENTED();
-    return 1;
+    if (rows == 0 || memory == NULL) {
+        return 1;
+    }
+
+    for (size_t i = 0; i < rows; i++) {
+        free(memory[i]);
+    }
+    free(memory);
+    memory = NULL;
+    return 0;
 }
 
 /**
@@ -116,9 +141,36 @@ int dyn_free2d(void **memory, size_t rows)
 
 unsigned **pascal_triangle(size_t depth)
 {
-    /* ! */ UNUSED(depth);
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    assert(depth > 0);
+
+    size_t sizes[depth];
+    for (size_t i = 0; i < depth; i++) {
+        sizes[i] = (i + 1) * sizeof(unsigned);
+    }
+    unsigned **pascal = (unsigned **) dyn_alloc2d(depth, sizes);
+    if (pascal == NULL) {
+        return NULL;
+    }
+
+    for (size_t row = 0; row < depth; row++) {
+        for (size_t col = 0; col <= row; col++) {
+            if (row == 0) {
+                pascal[row][col] = 1;
+                continue;
+            }
+            if (col == 0) {
+                pascal[row][col] = pascal[row - 1][col];
+                continue;
+            }
+            if (col == row) {
+                pascal[row][col] = pascal[row - 1][col - 1];
+                continue;
+            }
+            pascal[row][col] = pascal[row - 1][col - 1] + pascal[row - 1][col];
+        }
+    }
+
+    return pascal;
 }
 
 char **string_split(const char *orig, const char *splitter, size_t *size)

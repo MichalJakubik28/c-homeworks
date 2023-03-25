@@ -87,7 +87,7 @@ int main()
     play_read_line();
 
     // Bonuses:
-    // play_triangle();
+     play_triangle();
     // play_split();
 
     return 0;

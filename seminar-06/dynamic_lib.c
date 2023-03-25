@@ -173,22 +173,132 @@ unsigned **pascal_triangle(size_t depth)
     return pascal;
 }
 
+
+size_t count_splitters(const char *string, const char *splitter)
+{
+    if (string == NULL || splitter == NULL) {
+        return 0;
+    }
+    const char *start = string;
+    int counter = 0;
+    while (start < string + strlen(string)) {
+        if (strncmp(start, splitter, strlen(splitter)) == 0) {
+            counter++;
+            start += strlen(splitter) - 1;
+        }
+        start++;
+    }
+
+    return counter;
+}
+
+
 char **string_split(const char *orig, const char *splitter, size_t *size)
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ UNUSED(orig);
-    /* ! */ UNUSED(splitter);
-    /* ! */ UNUSED(size);
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    assert(orig != NULL);
+    assert(splitter != NULL);
+    assert(size != NULL);
+
+    size_t result_size = count_splitters(orig, splitter);
+
+    char **result = malloc((result_size + 2) * sizeof(void*));
+    if (result == NULL) {
+        return NULL;
+    }
+
+    // I know the size of the array in <size> and it is not a string so why must the last pointer in array be null?
+    result[result_size + 1] = NULL;
+
+    int counter = 0;
+    const char *start = orig;
+    char *nearest_delim = strstr(start, splitter);
+
+    if (orig[0] == 0) {
+        *size = 0;
+        return NULL;
+    }
+
+    char *substring;
+
+    while (nearest_delim != NULL) {
+        long diff = nearest_delim - start;
+        substring = malloc(diff + 1);
+
+        // cannot allocate memory for substring
+        if (substring == NULL) {
+            for (int i = 0; i < counter; i++) {
+                free(result[i]);
+                result[i] = NULL;
+            }
+            result = NULL;
+            return NULL;
+        }
+
+        strncpy(substring, start, diff);
+        substring[diff] = 0;
+        result[counter] = substring;
+        counter += 1;
+        start = nearest_delim + strlen(splitter);
+        nearest_delim = strchr(start, *splitter);
+    }
+
+    size_t length_of_last = orig + strlen(orig) - start;
+    substring = malloc(length_of_last + 1);
+
+    // cannot allocate memory for last substring
+    if (substring == NULL) {
+        for (int i = 0; i < counter; i++) {
+            free(result[i]);
+            result[i] = NULL;
+        }
+        result = NULL;
+        return NULL;
+    }
+
+    strncpy(substring, start, length_of_last);
+    substring[length_of_last] = 0;
+    result[counter] = substring;
+    *size = counter + 1;
+    return result;
 }
 
 char *string_replace_all(const char *original, const char *from, const char *to)
 {
-    /* TODO: Remove the following lines and implement the function. */
-    /* ! */ UNUSED(original);
-    /* ! */ UNUSED(from);
-    /* ! */ UNUSED(to);
-    /* ! */ NOT_IMPLEMENTED();
-    return NULL;
+    assert(original != NULL);
+    assert(from != NULL);
+    assert(to != NULL);
+
+    size_t substring_count = count_splitters(original, from);
+
+    size_t old_size = strlen(from);
+    size_t new_size = strlen(to);
+    size_t new_total_length = strlen(original) - substring_count * old_size + substring_count * new_size;
+
+    size_t divided_size = 0;
+    char **divided = string_split(original, from, &divided_size);
+
+    if (divided == NULL) {
+        return NULL;
+    }
+
+    char *result = malloc(new_total_length + 1);
+
+    if (result == NULL) {
+        return NULL;
+    }
+
+    char *append_position = result;
+    for (size_t i = 0; i < divided_size; i++) {
+
+        strcpy(append_position, divided[i]);
+        append_position += strlen(divided[i]);
+
+        if (i != divided_size - 1) {
+            strcpy(append_position, to);
+            append_position += strlen(to);
+        }
+    }
+    result[new_total_length] = 0;
+
+    return result;
 }

@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 // Uncomment the following line to enable doubly-linked implementation.
-//#define LLIST_ENABLE_TWO_LINKS
+#define LLIST_ENABLE_TWO_LINKS
 
 // Uncomment the following line if you want to use nodes with
 // Flexible Array Member (FAM)
@@ -22,7 +22,7 @@
 
 // Uncomment the following line if you want to enable tests for
 // all ends.
-//#define LLIST_ENABLE_ALL_ENDS
+#define LLIST_ENABLE_ALL_ENDS
 
 //-----------------------------------------------------------------------------
 //  Types

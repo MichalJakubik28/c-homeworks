@@ -6,12 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INPUT_ERROR (-1)
-#define LISTING 0
-#define FILTER 1
-#define CLUSTER 2
-#define GRAPH 3
-
 int decide_mode(int argc, char *argv[]) {
     if (argc < 3) {
         return INPUT_ERROR;
@@ -77,9 +71,6 @@ int decide_mode(int argc, char *argv[]) {
             if (s || c || t || p || g) {
                 return INPUT_ERROR;
             }
-            if (i == argc - 3) {
-                return INPUT_ERROR;
-            }
 
             s = true;
         }
@@ -109,55 +100,65 @@ bool validate_graph(char *argv[], unsigned int nodes[2]) {
     return split_and_parse_values(argv[2], nodes, ',');
 }
 
-bool validate_filtering(int argc, char *argv[], char *types, unsigned int capacity[2], bool *public) {
-    for (int i = 0; i < argc - 2; i++) {
+int validate_waste_types(int argc, char *argv[], char *types) {
+    for (int i = 1; i < argc - 2; i += 2) {
         if (strcmp(argv[i], "-t") == 0) {
             if (!parse_types(argv[i + 1], types)) {
-                return false;
+                return INPUT_ERROR;
             }
-            i++;
-        }
-
-        else if (strcmp(argv[i], "-c") == 0) {
-            if (!split_and_parse_values(argv[i + 1], capacity, '-')) {
-                return false;
-            }
-            i++;
-        }
-
-        else if (strcmp(argv[i], "-p") == 0) {
-            if (!parse_accessibility(argv[i + 1], public)) {
-                return false;
-            }
-            i++;
+            return FILTER_USED;
         }
     }
-    return true;
+    return FILTER_NOT_USED;
+}
+
+int validate_capacity(int argc, char *argv[], unsigned int capacity[2]) {
+    for (int i = 1; i < argc - 2; i += 2) {
+        if (strcmp(argv[i], "-c") == 0) {
+            if (!split_and_parse_values(argv[i + 1], capacity, '-')) {
+                return INPUT_ERROR;
+            }
+            if (capacity[1] < capacity[0]) {
+                return INPUT_ERROR;
+            }
+            return FILTER_USED;
+        }
+    }
+    return FILTER_NOT_USED;
+}
+
+int validate_accessibility(int argc, char *argv[], bool *public) {
+    for (int i = 1; i < argc - 2; i += 2) {
+        if (strcmp(argv[i], "-p") == 0) {
+            if (!parse_accessibility(argv[i + 1], public)) {
+                return INPUT_ERROR;
+            }
+            return FILTER_USED;
+        }
+    }
+    return FILTER_NOT_USED;
+}
+
+void add_to_types(char input, char *types) {
+    size_t length = strlen(types);
+    if (strchr(types, input) == NULL) {
+        types[length] = input;
+    }
 }
 
 bool parse_types(char *input, char *types) {
     for (unsigned int i = 0; i < strlen(input); i++) {
         switch (input[i]) {
         case 'A':
-            *types = (char) (*types | plastics_aluminium);
-            break;
         case 'P':
-            *types = (char) (*types | paper);
-            break;
         case 'B':
-            *types = (char) (*types | biodegradable_waste);
-            break;
         case 'G':
-            *types = (char) (*types | clear_glass);
-            break;
         case 'C':
-            *types = (char) (*types | colored_glass);
-            break;
         case 'T':
-            *types = (char) (*types | textile);
+            add_to_types(input[i], types);
             break;
         default:
-            return INPUT_ERROR;
+            return false;
         }
     }
 

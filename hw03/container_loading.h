@@ -16,6 +16,7 @@ typedef struct container_neighbor_list cn_list_t;
 typedef struct container_list c_list_t;
 
 typedef struct container container_t;
+typedef struct site site_t;
 
 // generic structures to unify linked list operations for types of linked lists above
 typedef struct linked_list llist;

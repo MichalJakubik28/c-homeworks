@@ -176,6 +176,7 @@ container_t *create_container(size_t line) {
         if (!parse_param[i](get_param[i](line), p_container)) {
             fprintf(stderr, "Could not parse argument no. %d\n", i);
             free(p_container);
+            p_container = NULL;
             return NULL;
         }
     }
@@ -183,6 +184,7 @@ container_t *create_container(size_t line) {
     cn_list_t *neighbours = malloc(sizeof(cn_list_t));
     if (neighbours == NULL) {
         free(p_container);
+        p_container = NULL;
         return NULL;
     }
     list_init((llist *) neighbours);
@@ -203,12 +205,19 @@ c_list_t* load_containers(void) {
     while (get_container_id(line) != NULL) {
         container_t *container = create_container(line);
 
-        if (container == NULL || !c_id_is_unique(containers, container->id)) {
+        if (container == NULL || c_get_by_id(containers, container->id) != NULL) {
             destroy_containers(containers);
             return NULL;
         }
 
-        c_list_append( containers, container);
+        c_node_t *container_node = create_c_node(container);
+        if (container_node == NULL) {
+            destroy_containers(containers);
+            return NULL;
+        }
+
+        list_append((llist *) containers, (ll_node *) container_node);
+//        c_list_append( containers, container);
         line++;
     }
     return containers;

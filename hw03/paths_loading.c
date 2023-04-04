@@ -51,9 +51,17 @@ bool add_to_neighbours(unsigned int id_a, unsigned int id_b, unsigned int distan
     if (cn_has_neighbor(container_a->neighbors, container_b->id)) {
         return true;
     }
-    if (!cn_list_insert(container_a->neighbors, container_b, distance) ||
-            !cn_list_insert(container_b->neighbors, container_a, distance)) {
+
+    cn_node_t *new_neighbor = (cn_node_t *) create_n_node(container_a, distance);
+    if (new_neighbor == NULL) {
         return false;
     }
+
+    cn_node_t *new_neighbor2 = (cn_node_t *) create_n_node(container_b, distance);
+    if (new_neighbor2 == NULL) {
+        return false;
+    }
+    cn_list_insert(container_b->neighbors, new_neighbor);
+    cn_list_insert(container_a->neighbors, new_neighbor2);
     return true;
 }

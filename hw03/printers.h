@@ -1,5 +1,5 @@
-#ifndef HW03_PRINTERS_H
-#define HW03_PRINTERS_H
+#ifndef PRINTERS_H
+#define PRINTERS_H
 
 #include "linked_list_utils.h"
 
@@ -11,4 +11,4 @@ void print_sites(s_list_t *sites);
 void print_waste_types(char *waste_types);
 void print_site_neighbors(site_t *site);
 
-#endif //HW03_PRINTERS_H
+#endif //PRINTERS_H

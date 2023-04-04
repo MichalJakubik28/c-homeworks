@@ -5,7 +5,8 @@
 #include <assert.h>
 #include <malloc.h>
 
-s_list_t *assign_sites_to_containers(c_list_t *containers) {
+s_list_t *assign_sites_to_containers(c_list_t *containers)
+{
     s_list_t *sites_list = malloc(sizeof(s_list_t));
     if (sites_list == NULL) {
         return NULL;
@@ -22,7 +23,6 @@ s_list_t *assign_sites_to_containers(c_list_t *containers) {
 
         // no suitable site found
         if (site_node == NULL) {
-
             // create new site
             site_node = create_s_node(sites_list, node->container->x, node->container->y);
             if (site_node == NULL) {
@@ -54,7 +54,8 @@ s_list_t *assign_sites_to_containers(c_list_t *containers) {
     return sites_list;
 }
 
-bool neighbor_container_sites(container_t *container) {
+bool neighbor_container_sites(container_t *container)
+{
     assert(container != NULL);
 
     cn_node_t *container_neighbor = container->neighbors->head;
@@ -79,7 +80,8 @@ bool neighbor_container_sites(container_t *container) {
     return true;
 }
 
-bool assign_neighbors_to_sites(c_list_t *containers) {
+bool assign_neighbors_to_sites(c_list_t *containers)
+{
     assert(containers != NULL);
 
     c_node_t *container_node = containers->head;
@@ -96,4 +98,3 @@ bool assign_neighbors_to_sites(c_list_t *containers) {
 
     return true;
 }
-

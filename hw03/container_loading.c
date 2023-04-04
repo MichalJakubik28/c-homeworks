@@ -5,26 +5,33 @@
 
 #include <limits.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
 
-bool parse_container_id(const char *id, container_t *container) {
+bool parse_container_id(const char *id, container_t *container)
+{
     if (id[0] == 0) {
         return false;
     }
     char *unparsed;
-    unsigned long long_id= strtol(id, &unparsed, 10);
-    if (unparsed[0] != 0 || long_id >= UINT_MAX) {
+    long long_id = strtol(id, &unparsed, 10);
+    if (unparsed[0] != 0 || long_id >= UINT_MAX || long_id < 0) {
         return false;
     }
     container->id = long_id;
     return true;
 }
 
-bool parse_container_x(const char *x, container_t *container) {
+bool parse_container_x(const char *x, container_t *container)
+{
     if (x[0] == 0) {
         return false;
     }
+
+    char *dot = strchr(x, '.');
+    if (x + strlen(x) - dot - 1 > 15) {
+        return false;
+    }
+
     char *unparsed;
     double double_x = strtod(x, &unparsed);
     if (unparsed[0] != 0) {
@@ -34,10 +41,17 @@ bool parse_container_x(const char *x, container_t *container) {
     return true;
 }
 
-bool parse_container_y(const char *y, container_t *container) {
+bool parse_container_y(const char *y, container_t *container)
+{
     if (y[0] == 0) {
         return false;
     }
+
+    char *dot = strchr(y, '.');
+    if (y + strlen(y) - dot - 1 > 15) {
+        return false;
+    }
+
     char *unparsed;
     double double_y = strtod(y, &unparsed);
     if (unparsed[0] != 0) {
@@ -47,7 +61,8 @@ bool parse_container_y(const char *y, container_t *container) {
     return true;
 }
 
-bool parse_container_waste(const char *type, container_t *container) {
+bool parse_container_waste(const char *type, container_t *container)
+{
     if (strcmp(type, "Plastics and Aluminium") == 0) {
         container->waste_type = 'A';
         return true;
@@ -75,58 +90,63 @@ bool parse_container_waste(const char *type, container_t *container) {
     return false;
 }
 
-bool parse_container_capacity(const char *capacity, container_t *container) {
+bool parse_container_capacity(const char *capacity, container_t *container)
+{
     if (capacity[0] == 0) {
         return false;
     }
     char *unparsed;
-    unsigned long long_capacity= strtol(capacity, &unparsed, 10);
-    if (unparsed[0] != 0 || long_capacity >= UINT_MAX) {
+    long long_capacity = strtol(capacity, &unparsed, 10);
+    if (unparsed[0] != 0 || long_capacity >= UINT_MAX || long_capacity < 0) {
         return false;
     }
     container->capacity = long_capacity;
     return true;
 }
 
-bool parse_container_name(const char *name, container_t *container) {
+bool parse_container_name(const char *name, container_t *container)
+{
     size_t length = strlen(name);
     char *parsed_name = calloc(length + 1, sizeof(char));
     if (parsed_name == NULL) {
         return false;
     }
-    strcpy(parsed_name, name);
+    strncpy(parsed_name, name, length);
     container->name = parsed_name;
 
     return true;
 }
 
-bool parse_container_address(const char *address, container_t *container) {
+bool parse_container_address(const char *address, container_t *container)
+{
     size_t length = strlen(address);
     char *parsed_address = calloc(length + 1, sizeof(char));
     if (parsed_address == NULL) {
         return false;
     }
-    strcpy(parsed_address, address);
+    strncpy(parsed_address, address, length);
     container->street = parsed_address;
 
     return true;
 }
 
-bool parse_container_number(const char *number, container_t *container) {
+bool parse_container_number(const char *number, container_t *container)
+{
     if (strlen(number) == 0) {
         container->number = UINT_MAX;
         return true;
     }
     char *unparsed;
-    unsigned long long_number = strtol(number, &unparsed, 10);
-    if (unparsed[0] != 0 || long_number >= UINT_MAX) {
+    long long_number = strtol(number, &unparsed, 10);
+    if (unparsed[0] != 0 || long_number >= UINT_MAX || long_number < 0) {
         return false;
     }
     container->number = long_number;
     return true;
 }
 
-bool parse_container_public(const char *public, container_t *container) {
+bool parse_container_public(const char *public, container_t *container)
+{
     if (strlen(public) != 1) {
         return false;
     }
@@ -143,14 +163,15 @@ bool parse_container_public(const char *public, container_t *container) {
     }
 }
 
-container_t *create_container(size_t line) {
+container_t *create_container(size_t line)
+{
     container_t *p_container = malloc(sizeof(container_t));
 
     if (p_container == NULL) {
-            return NULL;
+        return NULL;
     }
 
-    const char * (*get_param[]) (size_t) = {
+    const char *(*get_param[])(size_t) = {
         &get_container_id,
         &get_container_x,
         &get_container_y,
@@ -159,8 +180,9 @@ container_t *create_container(size_t line) {
         &get_container_name,
         &get_container_street,
         &get_container_number,
-        &get_container_public};
-    bool (*parse_param[]) (const char *, container_t *) = {
+        &get_container_public
+    };
+    bool (*parse_param[])(const char *, container_t *) = {
         &parse_container_id,
         &parse_container_x,
         &parse_container_y,
@@ -169,12 +191,11 @@ container_t *create_container(size_t line) {
         &parse_container_name,
         &parse_container_address,
         &parse_container_number,
-        &parse_container_public};
-
+        &parse_container_public
+    };
 
     for (int i = 0; i < 9; i++) {
         if (!parse_param[i](get_param[i](line), p_container)) {
-            fprintf(stderr, "Could not parse argument no. %d\n", i);
             free(p_container);
             p_container = NULL;
             return NULL;
@@ -194,12 +215,12 @@ container_t *create_container(size_t line) {
     return p_container;
 }
 
-c_list_t* load_containers(void) {
+c_list_t *load_containers(void)
+{
     unsigned int line = 0;
     c_list_t *containers = malloc(sizeof(c_list_t));
     if (containers == NULL) {
-            fprintf(stderr, "Memory allocation failed\n");
-            return NULL;
+        return NULL;
     }
     list_init((llist *) containers);
     while (get_container_id(line) != NULL) {
@@ -217,7 +238,6 @@ c_list_t* load_containers(void) {
         }
 
         list_append((llist *) containers, (ll_node *) container_node);
-//        c_list_append( containers, container);
         line++;
     }
     return containers;

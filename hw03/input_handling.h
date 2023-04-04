@@ -1,5 +1,5 @@
-#ifndef HW03_INPUT_HANDLING_H
-#define HW03_INPUT_HANDLING_H
+#ifndef INPUT_HANDLING_H
+#define INPUT_HANDLING_H
 
 #include <stdbool.h>
 
@@ -21,4 +21,4 @@ int validate_capacity(int argc, char *argv[], unsigned int capacity[2]);
 int validate_waste_types(int argc, char *argv[], char *types);
 void add_to_types(char input, char *types);
 
-#endif //HW03_INPUT_HANDLING_H
+#endif //INPUT_HANDLING_H

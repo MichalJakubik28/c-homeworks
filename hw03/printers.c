@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
-void print_container(container_t *container1) {
+void print_container(container_t *container1)
+{
     printf("ID: %d, Type: %s, Capacity: %d, Address:",
             container1->id,
             waste_to_long_form(container1->waste_type),
@@ -36,21 +37,25 @@ void print_container(container_t *container1) {
     putchar('\n');
 }
 
-bool filter_waste_type(container_t *container1, bool filter_used, char waste_types[7]) {
+bool filter_waste_type(container_t *container1, bool filter_used, char waste_types[7])
+{
     assert(container1 != NULL);
     return !filter_used || strchr(waste_types, container1->waste_type) != NULL;
 }
 
-bool filter_capacity(container_t *container1, bool filter_used, const unsigned int capacity[2]) {
+bool filter_capacity(container_t *container1, bool filter_used, const unsigned int capacity[2])
+{
     assert(container1 != NULL);
     return !filter_used || (container1->capacity >= capacity[0] && container1->capacity <= capacity[1]);
 }
 
-bool filter_accessibility(container_t *container1, bool filter_used, bool public) {
+bool filter_accessibility(container_t *container1, bool filter_used, bool public)
+{
     return !filter_used || container1->public == public;
 }
 
-char *waste_to_long_form(char letter) {
+char *waste_to_long_form(char letter)
+{
     switch (letter) {
     case 'A':
         return "Plastics and Aluminium";
@@ -69,7 +74,8 @@ char *waste_to_long_form(char letter) {
     }
 }
 
-void print_all_containers(c_list_t *containers) {
+void print_all_containers(c_list_t *containers)
+{
     c_node_t *node = containers->head;
     while (node != NULL) {
         c_node_t *next = node->next;
@@ -78,7 +84,8 @@ void print_all_containers(c_list_t *containers) {
     }
 }
 
-void print_filtered_containers(c_list_t *containers, char waste_types[7], unsigned int capacity[2], bool public, bool filters[3]) {
+void print_filtered_containers(c_list_t *containers, char waste_types[7], unsigned int capacity[2], bool public, bool filters[3])
+{
     c_node_t *node = containers->head;
 
     while (node != NULL) {
@@ -92,7 +99,8 @@ void print_filtered_containers(c_list_t *containers, char waste_types[7], unsign
     }
 }
 
-void print_sites(s_list_t *sites) {
+void print_sites(s_list_t *sites)
+{
     assert(sites != NULL);
 
     s_node_t *node = sites->head;
@@ -111,7 +119,8 @@ void print_sites(s_list_t *sites) {
     }
 }
 
-void print_waste_types(char *waste_types) {
+void print_waste_types(char *waste_types)
+{
     const char *sorted_types = "APBGCT";
     for (int i = 0; i < 6; i++) {
         if (strchr(waste_types, sorted_types[i])) {
@@ -120,7 +129,8 @@ void print_waste_types(char *waste_types) {
     }
 }
 
-void print_site_neighbors(site_t *site) {
+void print_site_neighbors(site_t *site)
+{
     sn_node_t *site_node = site->neighbors->head;
 
     while (site_node != NULL) {

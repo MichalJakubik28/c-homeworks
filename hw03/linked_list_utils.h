@@ -1,5 +1,5 @@
-#ifndef HW03_LINKED_LIST_UTILS_H
-#define HW03_LINKED_LIST_UTILS_H
+#ifndef LINKED_LIST_UTILS_H
+#define LINKED_LIST_UTILS_H
 
 #include "container_loading.h"
 
@@ -119,4 +119,4 @@ void cn_list_insert(cn_list_t *list, cn_node_t *node);
 void sn_list_insert(sn_list_t *list, sn_node_t *node);
 s_node_t *find_site(s_list_t *sites, container_t *container);
 
-#endif //HW03_LINKED_LIST_UTILS_H
+#endif //LINKED_LIST_UTILS_H

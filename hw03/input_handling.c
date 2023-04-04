@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int decide_mode(int argc, char *argv[]) {
+int decide_mode(int argc, char *argv[])
+{
     if (argc < 3) {
         return INPUT_ERROR;
     }
@@ -18,7 +19,6 @@ int decide_mode(int argc, char *argv[]) {
     bool g = false;
 
     for (int i = 1; i < argc - 2; i++) {
-
         if (strcmp(argv[i], "-t") == 0) {
             if (s || t || g) {
                 return INPUT_ERROR;
@@ -95,12 +95,14 @@ int decide_mode(int argc, char *argv[]) {
     return GRAPH;
 }
 
-bool validate_graph(char *argv[], unsigned int nodes[2]) {
+bool validate_graph(char *argv[], unsigned int nodes[2])
+{
     assert(strcmp(argv[1], "-g") == 0);
     return split_and_parse_values(argv[2], nodes, ',');
 }
 
-int validate_waste_types(int argc, char *argv[], char *types) {
+int validate_waste_types(int argc, char *argv[], char *types)
+{
     for (int i = 1; i < argc - 2; i += 2) {
         if (strcmp(argv[i], "-t") == 0) {
             if (!parse_types(argv[i + 1], types)) {
@@ -112,7 +114,8 @@ int validate_waste_types(int argc, char *argv[], char *types) {
     return FILTER_NOT_USED;
 }
 
-int validate_capacity(int argc, char *argv[], unsigned int capacity[2]) {
+int validate_capacity(int argc, char *argv[], unsigned int capacity[2])
+{
     for (int i = 1; i < argc - 2; i += 2) {
         if (strcmp(argv[i], "-c") == 0) {
             if (!split_and_parse_values(argv[i + 1], capacity, '-')) {
@@ -127,7 +130,8 @@ int validate_capacity(int argc, char *argv[], unsigned int capacity[2]) {
     return FILTER_NOT_USED;
 }
 
-int validate_accessibility(int argc, char *argv[], bool *public) {
+int validate_accessibility(int argc, char *argv[], bool *public)
+{
     for (int i = 1; i < argc - 2; i += 2) {
         if (strcmp(argv[i], "-p") == 0) {
             if (!parse_accessibility(argv[i + 1], public)) {
@@ -139,14 +143,16 @@ int validate_accessibility(int argc, char *argv[], bool *public) {
     return FILTER_NOT_USED;
 }
 
-void add_to_types(char input, char *types) {
+void add_to_types(char input, char *types)
+{
     size_t length = strlen(types);
     if (strchr(types, input) == NULL) {
         types[length] = input;
     }
 }
 
-bool parse_types(char *input, char *types) {
+bool parse_types(char *input, char *types)
+{
     for (unsigned int i = 0; i < strlen(input); i++) {
         switch (input[i]) {
         case 'A':
@@ -165,7 +171,8 @@ bool parse_types(char *input, char *types) {
     return true;
 }
 
-bool split_and_parse_values(char input[], unsigned int values[2], int delimiter) {
+bool split_and_parse_values(char input[], unsigned int values[2], int delimiter)
+{
     char *delim = strchr(input, delimiter);
     if (delim == NULL) {
         return false;
@@ -179,7 +186,7 @@ bool split_and_parse_values(char input[], unsigned int values[2], int delimiter)
         char *unparsed = 0;
         unsigned long value_long = strtol(value, &unparsed, 10);
 
-//        printf("Number: %ld Not parsed: %s\n", value_long, unparsed);
+        //        printf("Number: %ld Not parsed: %s\n", value_long, unparsed);
         if (unparsed[0] != 0 || value_long >= UINT_MAX) {
             return false;
         }
@@ -190,7 +197,8 @@ bool split_and_parse_values(char input[], unsigned int values[2], int delimiter)
     return true;
 }
 
-bool parse_accessibility(char *input, bool *public) {
+bool parse_accessibility(char *input, bool *public)
+{
     if (strcmp(input, "Y") == 0) {
         *public = true;
         return true;

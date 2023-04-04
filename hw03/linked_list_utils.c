@@ -2,8 +2,8 @@
 
 #include <assert.h>
 #include <malloc.h>
-#include <stdbool.h>
 #include <math.h>
+#include <stdbool.h>
 
 void list_init(llist *list)
 {
@@ -13,7 +13,8 @@ void list_init(llist *list)
     list->tail = NULL;
 }
 
-c_node_t *create_c_node(container_t *container) {
+c_node_t *create_c_node(container_t *container)
+{
     c_node_t *node = malloc(sizeof(c_node_t));
 
     if (node == NULL) {
@@ -26,7 +27,8 @@ c_node_t *create_c_node(container_t *container) {
     return node;
 }
 
-s_node_t *create_s_node(s_list_t *sites, double x, double y) {
+s_node_t *create_s_node(s_list_t *sites, double x, double y)
+{
     assert(sites != NULL);
 
     s_node_t *node = malloc(sizeof(s_node_t));
@@ -44,6 +46,8 @@ s_node_t *create_s_node(s_list_t *sites, double x, double y) {
 
     sn_list_t *site_neighbors = malloc(sizeof(sn_list_t));
     if (site_neighbors == NULL) {
+        free(node);
+        free(new_site);
         return NULL;
     }
     list_init((llist *) site_neighbors);
@@ -59,7 +63,8 @@ s_node_t *create_s_node(s_list_t *sites, double x, double y) {
     return node;
 }
 
-lln_node *create_n_node(void *data, unsigned int distance) {
+lln_node *create_n_node(void *data, unsigned int distance)
+{
     assert(data != NULL);
 
     lln_node *node = malloc(sizeof(lln_node));
@@ -196,7 +201,7 @@ void list_push_front(llist *list, lln_node *node)
     list->head = node;
 }
 
-bool n_list_push_front(cn_list_t  *list, container_t *container1, unsigned int distance)
+bool n_list_push_front(cn_list_t *list, container_t *container1, unsigned int distance)
 {
     assert(list != NULL);
     assert(container1 != NULL);
@@ -448,12 +453,13 @@ void sn_list_insert(sn_list_t *list, sn_node_t *node)
     list_append((llist *) list, (ll_node *) node);
 }
 
-bool container_in_site(container_t *container1, s_node_t *site_node) {
-    return fabs(container1->x - site_node->site->x) <= 0.00000000000001
-            && fabs(container1->y - site_node->site->y) <= 0.00000000000001;
+bool container_in_site(container_t *container1, s_node_t *site_node)
+{
+    return fabs(container1->x - site_node->site->x) <= 0.00000000000001 && fabs(container1->y - site_node->site->y) <= 0.00000000000001;
 }
 
-s_node_t *find_site(s_list_t *sites, container_t *container) {
+s_node_t *find_site(s_list_t *sites, container_t *container)
+{
     assert(sites != NULL);
     assert(container != NULL);
 

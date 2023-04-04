@@ -5,8 +5,6 @@
 #include "paths_loading.h"
 #include "sites_processing.h"
 
-#include <assert.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,16 +40,16 @@ int main(int argc, char *argv[])
     }
 
     // copy containers info from parser
-    c_list_t *containers;
-    containers = load_containers();
+    c_list_t *containers = load_containers();
     if (containers == NULL) {
+        fprintf(stderr, "Could not load containers\n");
         destroy_data_source();
         return EXIT_FAILURE;
     }
 
     // copy paths info from parser
     if (!load_paths(containers)) {
-        printf("Paths NOK, freeing memory\n");
+        fprintf(stderr, "Could not load paths\n");
         destroy_containers(containers);
         destroy_data_source();
         return EXIT_FAILURE;
@@ -60,7 +58,7 @@ int main(int argc, char *argv[])
     destroy_data_source();
 
     if (mode == GRAPH) {
-        unsigned int nodes[] = {0, 0};
+        unsigned int nodes[] = { 0, 0 };
         if (!validate_graph(argv, nodes)) {
             fprintf(stderr, "Invalid -g argument\n");
             destroy_containers(containers);
@@ -73,7 +71,7 @@ int main(int argc, char *argv[])
 
     else if (mode == FILTER) {
         // whether filters are used: waste types, capacity, accessibility
-        bool filters[3] = {false, false, false};
+        bool filters[3] = { false, false, false };
 
         char waste_types[7];
         memset(waste_types, 0, 7);
@@ -99,17 +97,6 @@ int main(int argc, char *argv[])
         }
 
         print_filtered_containers(containers, waste_types, capacity, public, filters);
-//        printf("Used filters: ");
-//        if (filters[0]) {
-//            printf("Waste types: %s ", waste_types);
-//        }
-//        if (filters[1]) {
-//            printf("Capacity: %d - %d ", capacity[0], capacity[1]);
-//        }
-//        if (filters[2]) {
-//            printf("Public: %c\n", public ? 'Y' : 'N');
-//        }
-
     }
 
     else if (mode == CLUSTER) {
@@ -139,7 +126,8 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS; // May your program be as successful as this macro. Good luck!
 }
 
-bool assess_filter_validation(int return_code, bool *filters, int index) {
+bool assess_filter_validation(int return_code, bool *filters, int index)
+{
     switch (return_code) {
     case FILTER_USED:
         filters[index] = true;

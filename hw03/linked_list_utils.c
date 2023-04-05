@@ -1,6 +1,7 @@
 #include "linked_list_utils.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <malloc.h>
 #include <math.h>
 #include <stdbool.h>
@@ -43,6 +44,9 @@ s_node_t *create_s_node(s_list_t *sites, double x, double y)
         free(node);
         return NULL;
     }
+
+    new_site->predecessor = NULL;
+    new_site->shortest_distance = UINT_MAX;
 
     sn_list_t *site_neighbors = malloc(sizeof(sn_list_t));
     if (site_neighbors == NULL) {
@@ -263,6 +267,40 @@ site_t *sn_get_by_id(sn_list_t *list, size_t id)
     return NULL;
 }
 
+s_node_t *s_get_by_id(s_list_t *list, size_t id)
+{
+    assert(list != NULL);
+
+    s_node_t *node = list->head;
+
+    while (node != NULL) {
+        s_node_t *next = node->next;
+        if (node->site->id == id) {
+            return node;
+        }
+        node = next;
+    }
+
+    return NULL;
+}
+
+s_node_t *s_get_by_site(s_list_t *list, site_t *site)
+{
+    assert(list != NULL);
+
+    s_node_t *node = list->head;
+
+    while (node != NULL) {
+        s_node_t *next = node->next;
+        if (node->site == site) {
+            return node;
+        }
+        node = next;
+    }
+
+    return NULL;
+}
+
 bool cn_has_neighbor(cn_list_t *list, size_t id)
 {
     assert(list != NULL);
@@ -476,4 +514,61 @@ s_node_t *find_site(s_list_t *sites, container_t *container)
     }
 
     return NULL;
+}
+
+void remove_from_list(s_list_t *list, s_node_t *node_to_remove)
+{
+    if (node_to_remove == list->head) {
+        list->head = node_to_remove->next;
+        if (node_to_remove->next != NULL) {
+            node_to_remove->next->prev = NULL;
+        } else {
+            list->tail = NULL;
+        }
+
+    } else if (node_to_remove == list->tail) {
+        if (node_to_remove->prev != NULL) {
+            node_to_remove->prev->next = NULL;
+            list->tail = node_to_remove->prev;
+        } else {
+            list->head = NULL;
+            list->tail = NULL;
+        }
+    } else {
+        s_node_t *prev = node_to_remove->prev;
+        s_node_t *next = node_to_remove->next;
+        prev->next = next;
+        next->prev = prev;
+    }
+
+    node_to_remove->next = NULL;
+    node_to_remove->prev = NULL;
+}
+
+void s_list_insert_by_distance(s_list_t *list, s_node_t *node)
+{
+    assert(list != NULL);
+    assert(node != NULL);
+
+    s_node_t *curr_node = list->head;
+
+    while (curr_node != NULL) {
+        s_node_t *next = curr_node->next;
+        if (node->site->shortest_distance < curr_node->site->shortest_distance) {
+            if (curr_node == list->head) {
+                list_push_front((llist *) list, (lln_node *) node);
+                return;
+            }
+
+            // set pointers
+            s_node_t *prev = curr_node->prev;
+            node->next = curr_node;
+            node->prev = prev;
+            curr_node->prev = node;
+            prev->next = node;
+            return;
+        }
+        curr_node = next;
+    }
+    list_append((llist *) list, (ll_node *) node);
 }

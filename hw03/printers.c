@@ -1,9 +1,11 @@
 #include "printers.h"
 
+#include "input_handling.h"
 #include "linked_list_utils.h"
 
 #include <assert.h>
 #include <limits.h>
+#include <malloc.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -143,4 +145,34 @@ void print_site_neighbors(site_t *site)
 
         site_node = next;
     }
+}
+
+bool print_dijkstra(site_t *site, unsigned int path_length)
+{
+    assert(path_length != 0);
+
+    unsigned int *output = calloc(path_length, sizeof(unsigned int));
+    if (output == NULL) {
+        return false;
+    }
+
+    unsigned int index = path_length - 1;
+    output[index] = site->id;
+    site_t *prev = site->predecessor;
+    while (prev != NULL) {
+        index--;
+        output[index] = prev->id;
+        prev = prev->predecessor;
+    }
+
+    while (index < path_length) {
+        if (index != 0) {
+            putchar('-');
+        }
+        printf("%d", output[index]);
+        index++;
+    }
+    printf(" %d\n", site->shortest_distance);
+    free(output);
+    return true;
 }

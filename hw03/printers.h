@@ -10,5 +10,6 @@ void print_filtered_containers(c_list_t *containers, char waste_types[7], unsign
 void print_sites(s_list_t *sites);
 void print_waste_types(char *waste_types);
 void print_site_neighbors(site_t *site);
+bool print_dijkstra(site_t *site, unsigned int path_length);
 
 #endif //PRINTERS_H

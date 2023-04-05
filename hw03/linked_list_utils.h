@@ -82,6 +82,8 @@ struct site {
     double y;
     char *waste_types;
     sn_list_t *neighbors;
+    site_t *predecessor;
+    unsigned int shortest_distance;
 };
 
 struct container {
@@ -118,5 +120,9 @@ bool cn_has_neighbor(cn_list_t *list, size_t id);
 void cn_list_insert(cn_list_t *list, cn_node_t *node);
 void sn_list_insert(sn_list_t *list, sn_node_t *node);
 s_node_t *find_site(s_list_t *sites, container_t *container);
+void remove_from_list(s_list_t *list, s_node_t *node_to_remove);
+void s_list_insert_by_distance(s_list_t *list, s_node_t *node);
+s_node_t *s_get_by_site(s_list_t *list, site_t *site);
+s_node_t *s_get_by_id(s_list_t *list, size_t id);
 
 #endif //LINKED_LIST_UTILS_H

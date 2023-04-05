@@ -3,7 +3,9 @@
 #include "input_handling.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <malloc.h>
+#include <math.h>
 
 s_list_t *assign_sites_to_containers(c_list_t *containers)
 {
@@ -15,6 +17,7 @@ s_list_t *assign_sites_to_containers(c_list_t *containers)
 
     c_node_t *node = containers->head;
 
+    int counter = 0;
     while (node != NULL) {
         c_node_t *next = node->next;
 
@@ -50,6 +53,7 @@ s_list_t *assign_sites_to_containers(c_list_t *containers)
         add_to_types(node->container->waste_type, site_node->site->waste_types);
 
         node = next;
+        counter++;
     }
     return sites_list;
 }
@@ -68,6 +72,8 @@ bool neighbor_container_sites(container_t *container)
             free(new_neighbor);
             return false;
         }
+        new_neighbor->site->predecessor = NULL;
+        new_neighbor->site->shortest_distance = UINT_MAX;
         if (sn_get_by_id(container->site->neighbors, new_neighbor->site->id) == NULL) {
             sn_list_insert(container->site->neighbors, new_neighbor);
         } else {
@@ -86,6 +92,7 @@ bool assign_neighbors_to_sites(c_list_t *containers)
 
     c_node_t *container_node = containers->head;
 
+    int counter = 0;
     while (container_node != NULL) {
         c_node_t *next = container_node->next;
 
@@ -94,6 +101,7 @@ bool assign_neighbors_to_sites(c_list_t *containers)
         }
 
         container_node = next;
+        counter++;
     }
 
     return true;

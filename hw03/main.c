@@ -1,8 +1,10 @@
 #include "container_loading.h"
 #include "data_source.h"
+#include "dijkstra.h"
 #include "input_handling.h"
 #include "linked_list_utils.h"
 #include "paths_loading.h"
+#include "printers.h"
 #include "sites_processing.h"
 
 #include <stdio.h>
@@ -10,16 +12,9 @@
 #include <string.h>
 
 bool assess_filter_validation(int return_code, bool *filters, int index);
-void print_container(container_t *container1);
-char *waste_to_long_form(char letter);
-void print_all_containers(c_list_t *containers);
-void print_filtered_containers(c_list_t *containers, char waste_types[7], unsigned int capacity[2], bool public, bool filters[3]);
 bool filter_waste_type(container_t *container1, bool filter_used, char waste_types[7]);
 bool filter_capacity(container_t *container1, bool filter_used, const unsigned int capacity[2]);
 bool filter_accessibility(container_t *container1, bool filter_used, bool public);
-void print_sites(s_list_t *sites);
-void print_waste_types(char *waste_types);
-void print_site_neighbors(site_t *site);
 
 int main(int argc, char *argv[])
 {
@@ -57,19 +52,7 @@ int main(int argc, char *argv[])
 
     destroy_data_source();
 
-    if (mode == GRAPH) {
-        unsigned int nodes[] = { 0, 0 };
-        if (!validate_graph(argv, nodes)) {
-            fprintf(stderr, "Invalid -g argument\n");
-            destroy_containers(containers);
-            return EXIT_FAILURE;
-        }
-        printf("NOT IMPLEMENTED YET");
-        destroy_containers(containers);
-        return EXIT_FAILURE;
-    }
-
-    else if (mode == FILTER) {
+    if (mode == FILTER) {
         // whether filters are used: waste types, capacity, accessibility
         bool filters[3] = { false, false, false };
 
@@ -99,7 +82,7 @@ int main(int argc, char *argv[])
         print_filtered_containers(containers, waste_types, capacity, public, filters);
     }
 
-    else if (mode == CLUSTER) {
+    else if (mode == CLUSTER || mode == GRAPH) {
         s_list_t *sites = assign_sites_to_containers(containers);
         if (sites == NULL) {
             fprintf(stderr, "Could not create sites\n");
@@ -113,8 +96,43 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        print_sites(sites);
+        if (mode == CLUSTER) {
+            print_sites(sites);
+        } else {
+            unsigned int nodes[] = { 0, 0 };
+            if (!validate_graph(argv, nodes)) {
+                fprintf(stderr, "Invalid -g argument\n");
+                destroy_sites(sites);
+                destroy_containers(containers);
+                return EXIT_FAILURE;
+            }
+
+            site_t target;
+            int result = dijkstra(sites, nodes[0], nodes[1], &target);
+            if (result == INVALID_TARGET) {
+                fprintf(stderr, "Invalid start or target point\n");
+                destroy_sites(sites);
+                destroy_containers(containers);
+                return EXIT_FAILURE;
+            } else if (result == NO_PATH) {
+                print_dijkstra(&target, 0);
+            } else {
+                unsigned int length = path_length(&target);
+                if (length == 0) {
+                    printf("No path between specified sites\n");
+                } else {
+                    if (!print_dijkstra(&target, length)) {
+                        fprintf(stderr, "Could not allocate memory for path printing\n");
+                        destroy_sites(sites);
+                        destroy_containers(containers);
+                        return EXIT_FAILURE;
+                    }
+                }
+            }
+        }
+
         destroy_sites(sites);
+
     }
 
     else {

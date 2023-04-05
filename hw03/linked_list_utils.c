@@ -320,7 +320,9 @@ bool cn_has_neighbor(cn_list_t *list, size_t id)
 
 void destroy_containers(c_list_t *list)
 {
-    assert(list != NULL);
+    if (list == NULL) {
+        return;
+    }
 
     c_node_t *curr_node = list->head;
     while (curr_node != NULL) {

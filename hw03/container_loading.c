@@ -7,6 +7,18 @@
 #include <stdbool.h>
 #include <string.h>
 
+void destroy_container(container_t *container)
+{
+    if (container == NULL) {
+        return;
+    }
+
+    free(container->street);
+    free(container->name);
+    destroy_neighbors((llist *) container->neighbors);
+    free(container);
+}
+
 bool parse_container_id(const char *id, container_t *container)
 {
     if (id[0] == 0) {
@@ -28,7 +40,7 @@ bool parse_container_x(const char *x, container_t *container)
     }
 
     char *dot = strchr(x, '.');
-    if (x + strlen(x) - dot - 1 > 15) {
+    if (dot != NULL && (x + strlen(x) - dot - 1 > 15)) {
         return false;
     }
 
@@ -48,7 +60,7 @@ bool parse_container_y(const char *y, container_t *container)
     }
 
     char *dot = strchr(y, '.');
-    if (y + strlen(y) - dot - 1 > 15) {
+    if (dot != NULL && (y + strlen(y) - dot - 1 > 15)) {
         return false;
     }
 
@@ -170,6 +182,10 @@ container_t *create_container(size_t line)
     if (p_container == NULL) {
         return NULL;
     }
+    p_container->name = NULL;
+    p_container->street = NULL;
+    p_container->neighbors = NULL;
+    p_container->site = NULL;
 
     const char *(*get_param[])(size_t) = {
         &get_container_id,
@@ -196,24 +212,18 @@ container_t *create_container(size_t line)
 
     for (int i = 0; i < 9; i++) {
         if (!parse_param[i](get_param[i](line), p_container)) {
-            free(p_container->name);
-            free(p_container->street);
-            free(p_container);
-            p_container = NULL;
+            destroy_container(p_container);
             return NULL;
         }
     }
 
     cn_list_t *neighbours = malloc(sizeof(cn_list_t));
     if (neighbours == NULL) {
-        free(p_container);
-        p_container = NULL;
+        destroy_container(p_container);
         return NULL;
     }
     list_init((llist *) neighbours);
     p_container->neighbors = neighbours;
-    p_container->site = NULL;
-
     return p_container;
 }
 
@@ -229,12 +239,14 @@ c_list_t *load_containers(void)
         container_t *container = create_container(line);
 
         if (container == NULL || c_get_by_id(containers, container->id) != NULL) {
+            destroy_container(container);
             destroy_containers(containers);
             return NULL;
         }
 
         c_node_t *container_node = create_c_node(container);
         if (container_node == NULL) {
+            destroy_container(container);
             destroy_containers(containers);
             return NULL;
         }

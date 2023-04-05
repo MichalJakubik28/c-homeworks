@@ -10,7 +10,7 @@ bool string_to_uint(const char *string, unsigned int *uint)
 {
     char *unparsed;
     long long_id = strtol(string, &unparsed, 10);
-    if (unparsed[0] != 0 || long_id >= UINT_MAX) {
+    if (unparsed[0] != 0 || long_id >= UINT_MAX || long_id < 0) {
         return false;
     }
     *uint = long_id;

@@ -25,10 +25,13 @@ void print_container(container_t *container1)
     }
 
     // print neighbors
-    printf(", Neighbors: ");
+    printf(", Neighbors:");
 
     cn_node_t *neighbor = container1->neighbors->head;
     while (neighbor != NULL) {
+        if (neighbor == container1->neighbors->head) {
+            putchar(' ');
+        }
         cn_node_t *next = neighbor->next;
         printf("%u", neighbor->container->id);
         if (next != NULL) {

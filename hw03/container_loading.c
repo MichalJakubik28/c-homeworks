@@ -196,6 +196,8 @@ container_t *create_container(size_t line)
 
     for (int i = 0; i < 9; i++) {
         if (!parse_param[i](get_param[i](line), p_container)) {
+            free(p_container->name);
+            free(p_container->street);
             free(p_container);
             p_container = NULL;
             return NULL;

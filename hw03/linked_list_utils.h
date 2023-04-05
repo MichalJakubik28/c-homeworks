@@ -6,25 +6,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-struct site_neighbor_node {
+struct site_neighbor_node
+{
     sn_node_t *prev;
     sn_node_t *next;
     site_t *site;
     unsigned int distance;
 };
 
-struct site_neighbor_list {
+struct site_neighbor_list
+{
     sn_node_t *head;
     sn_node_t *tail;
 };
 
-struct site_node {
+struct site_node
+{
     s_node_t *prev;
     s_node_t *next;
     site_t *site;
 };
 
-struct site_list {
+struct site_list
+{
     s_node_t *head;
     s_node_t *tail;
 };
@@ -58,25 +62,29 @@ struct container_list
 
 // generic structures for list manipulation
 
-struct linked_list_node {
+struct linked_list_node
+{
     ll_node *prev;
     ll_node *next;
     void *data;
 };
 
-struct linked_list {
+struct linked_list
+{
     lln_node *head;
     lln_node *tail;
 };
 
-struct linked_list_neighbor_node {
+struct linked_list_neighbor_node
+{
     lln_node *prev;
     lln_node *next;
     void *data;
     unsigned int distance;
 };
 
-struct site {
+struct site
+{
     unsigned int id;
     double x;
     double y;
@@ -86,7 +94,8 @@ struct site {
     unsigned int shortest_distance;
 };
 
-struct container {
+struct container
+{
     unsigned int id;
     double x, y;
     char waste_type;
@@ -110,7 +119,7 @@ bool n_list_append(llist *list, void *data, unsigned int distance);
 bool s_list_append(s_list_t *list, double x, double y);
 void destroy_containers(c_list_t *list);
 void destroy_neighbors(llist *list);
-void destroy_sites(s_list_t  *list);
+void destroy_sites(s_list_t *list);
 bool c_id_is_unique(c_list_t *list, unsigned int id);
 container_t *c_get_by_id(c_list_t *list, size_t id);
 site_t *sn_get_by_id(sn_list_t *list, size_t id);

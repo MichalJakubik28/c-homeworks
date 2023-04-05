@@ -13,6 +13,9 @@
 
 long getline(char **lineptr, size_t *n, FILE *file)
 {
+    // 536390@mail.muni.cz
+
+
     if (lineptr == NULL || n == NULL)
         return -1;
 

@@ -19,9 +19,15 @@
  */
 int xorcrypt(FILE *key, FILE *in, FILE *out)
 {
-    UNUSED(key);
-    UNUSED(in);
-    UNUSED(out);
+    char *key_array[512];
+    fread(key_array, 1, 512, key);
+
+    char *plaintext[512];
+    unsigned int length = fread(plaintext, 1, 512, in);
+    for (unsigned int index = length; index < 512; index++) {
+        plaintext[index] = 0;
+    }
+
 
     // TODO: implement the function
     // 1) read the key to a 512 byte long buffer using ‹fread()›

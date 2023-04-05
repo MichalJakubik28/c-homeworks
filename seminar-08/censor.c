@@ -19,9 +19,26 @@
  */
 int censor(const char *search, FILE *in, FILE *out)
 {
-    UNUSED(search);
-    UNUSED(in);
-    UNUSED(out);
+    char *line = readline(in);
+    while (line != NULL) {
+        char *to_censor = strstr(line, search);
+        char *last_printed = line;
+
+        while (to_censor != NULL) {
+            while (last_printed != to_censor) {
+                putc(*last_printed, out);
+                last_printed++;
+            }
+            for (unsigned int i = 0; i < strlen(search); i++) {
+                putc('*', out);
+                last_printed++;
+            }
+            to_censor = strstr(last_printed, search);
+        }
+        fprintf(out, "%s", last_printed);
+        free(line);
+        line = readline(in);
+    }
 
     // TODO: implement the function
 
@@ -40,6 +57,19 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    FILE *in = fopen(argv[2], "r");
+    if (in == NULL) {
+        fprintf(stderr, "Could not open input file\n");
+    }
+
+    FILE *out = fopen(argv[3], "w");
+    if (out == NULL) {
+        fprintf(stderr, "Could not open output file\n");
+    }
+
+    censor(argv[1], in, out);
+    fclose(in);
+    fclose(out);
     // TODO: open input and output file
 
     // TODO: call ‹censor()›

@@ -8,8 +8,8 @@
 
 #include <stdlib.h>
 
-#define CONTAINERS_FILE "../data/Brno-JehniceContainers.csv"
-#define PATHS_FILE "../data/Brno-JehnicePaths.csv"
+#define CONTAINERS_FILE "data/Brno-JehniceContainers.csv"
+#define PATHS_FILE "data/Brno-JehnicePaths.csv"
 
 /* The following “extentions” to CUT are available in this test file:
  *

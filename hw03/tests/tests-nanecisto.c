@@ -5,8 +5,8 @@
 #include <stdlib.h>
 
 /* Macros for file paths */
-#define CONTAINERS_FILE "../tests/data/example-containers.csv"
-#define PATHS_FILE "../tests/data/example-paths.csv"
+#define CONTAINERS_FILE "tests/data/example-containers.csv"
+#define PATHS_FILE "tests/data/example-paths.csv"
 #define NONEXISTENT_FILE "nonexistent.csv"
 
 /* Tests from assignment */

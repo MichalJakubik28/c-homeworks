@@ -39,16 +39,6 @@ static int parse_players(int argc, char **argv)
     }
 }
 
-void print_cards(const bool cards[13][4])
-{
-    for (int color = 3; color >= 0; color--) {
-        for (int value = 12; value >= 0; value--) {
-            printf("%d", cards[value][color] ? 1 : 0);
-        }
-        putchar('\n');
-    }
-}
-
 int main(int argc, char **argv)
 {
     int players = parse_players(argc, argv);
@@ -76,7 +66,7 @@ int main(int argc, char **argv)
         char best_combinations[players][6];
         memset(best_combinations, -1, players * 6);
 
-        // find best combination for all players
+        // find the best combination for all players
         for (int i = 0; i < players; i++) {
             find_best_combination(best_combinations[i], (const bool(*)[4]) cards[i]);
         }
@@ -114,7 +104,6 @@ int compare_players(const int former_best, const int competitor, const int playe
 
 void find_best_combination(char best_cards[6], const bool player_cards[13][4])
 {
-    //    print_cards(player_cards);
     void (*check_combination[])(char[], const bool[13][4]) = { &pair, &two_pair, &three_of_a_kind, &straight, &flush, &full_house, &four_of_a_kind, &straight_flush };
     for (int i = 7; i >= 0; i--) {
         check_combination[i](best_cards, player_cards);

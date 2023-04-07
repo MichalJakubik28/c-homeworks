@@ -39,7 +39,8 @@ static int parse_players(int argc, char **argv)
     }
 }
 
-void print_cards(const bool cards[13][4]) {
+void print_cards(const bool cards[13][4])
+{
     for (int color = 3; color >= 0; color--) {
         for (int value = 12; value >= 0; value--) {
             printf("%d", cards[value][color] ? 1 : 0);
@@ -113,7 +114,7 @@ int compare_players(const int former_best, const int competitor, const int playe
 
 void find_best_combination(char best_cards[6], const bool player_cards[13][4])
 {
-//    print_cards(player_cards);
+    //    print_cards(player_cards);
     void (*check_combination[])(char[], const bool[13][4]) = { &pair, &two_pair, &three_of_a_kind, &straight, &flush, &full_house, &four_of_a_kind, &straight_flush };
     for (int i = 7; i >= 0; i--) {
         check_combination[i](best_cards, player_cards);
@@ -126,7 +127,7 @@ void find_best_combination(char best_cards[6], const bool player_cards[13][4])
 
     // no combination found, fill with highest cards
     fill_with_highest(best_cards, player_cards, -1, 5);
-    best_cards[0] = 0;
+    best_cards[0] = '\0';
 }
 
 int read_input_cards(const int players, bool cards[players][13][4])
@@ -193,27 +194,28 @@ int read_input_cards(const int players, bool cards[players][13][4])
     return CARDS_OK;
 }
 
-int convert_value(int value) {
+int convert_value(int value)
+{
     int value_index = -1;
 
     switch (value) {
-        case 'A':
-            value_index = 12;
-            break;
-        case 'K':
-            value_index = 11;
-            break;
-        case 'Q':
-            value_index = 10;
-            break;
-        case 'J':
-            value_index = 9;
-            break;
-        case 'T':
-            value_index = 8;
-            break;
-        default:
-            break;
+    case 'A':
+        value_index = 12;
+        break;
+    case 'K':
+        value_index = 11;
+        break;
+    case 'Q':
+        value_index = 10;
+        break;
+    case 'J':
+        value_index = 9;
+        break;
+    case 'T':
+        value_index = 8;
+        break;
+    default:
+        break;
     }
 
     // convert ascii numbers to indices 0-7
@@ -224,23 +226,24 @@ int convert_value(int value) {
     return value_index;
 }
 
-int convert_color(int color) {
+int convert_color(int color)
+{
     int color_index = -1;
     switch (color) {
-        case 'c':
-            color_index = 3;
-            break;
-        case 's':
-            color_index = 2;
-            break;
-        case 'd':
-            color_index = 1;
-            break;
-        case 'h':
-            color_index = 0;
-            break;
-        default:
-            break;
+    case 'c':
+        color_index = 3;
+        break;
+    case 's':
+        color_index = 2;
+        break;
+    case 'd':
+        color_index = 1;
+        break;
+    case 'h':
+        color_index = 0;
+        break;
+    default:
+        break;
     }
 
     return color_index;
@@ -255,7 +258,6 @@ char convert_and_store(const char value, const char color, const int players, co
 
     int value_index = convert_value(value);
     int color_index = convert_color(color);
-
 
     if (value_index == -1 || color_index == -1 || player_number > players - 1) {
         fprintf(stderr, "Invalid index or player number\n");
@@ -281,8 +283,8 @@ char convert_and_store(const char value, const char color, const int players, co
     return CARDS_OK;
 }
 
-void assign_straight_flush(char best_cards[6], int value, int order) {
-
+void assign_straight_flush(char best_cards[6], int value, int order)
+{
     // case of steel wheel
     if (mod((value - order), 13) == 12) {
         for (int i = 1; i < 6; i++) {
@@ -296,7 +298,8 @@ void assign_straight_flush(char best_cards[6], int value, int order) {
     }
 }
 
-bool found_straight_flush(const bool cards[13][4], int value, int color, char best_cards[6]) {
+bool found_straight_flush(const bool cards[13][4], int value, int color, char best_cards[6])
+{
     for (char order = 0; order <= 4; order++) {
         if (!cards[mod((value - order), 13)][color]) {
             break;
@@ -386,8 +389,8 @@ char n_of_a_kind(const bool cards[13][4], const int n, const char forbidden)
     return -1;
 }
 
-void assign_straight(char best_cards[6], int value) {
-
+void assign_straight(char best_cards[6], int value)
+{
     // case of baby straight
     if (mod((value - 4), 13) == 12) {
         for (int i = 1; i < 6; i++) {
@@ -401,7 +404,8 @@ void assign_straight(char best_cards[6], int value) {
     }
 }
 
-bool value_in_cards(const bool cards[13][4], int value, int order) {
+bool value_in_cards(const bool cards[13][4], int value, int order)
+{
     for (int color = 0; color < 4; color++) {
         if (cards[mod((value - order), 13)][color]) {
             return true;
@@ -410,7 +414,6 @@ bool value_in_cards(const bool cards[13][4], int value, int order) {
 
     return false;
 }
-
 
 void straight(char best_cards[6], const bool cards[13][4])
 {
@@ -504,7 +507,8 @@ int mod(const int a, const int b)
     return result;
 }
 
-bool find_and_assign_noak(const bool cards[13][4], char best_cards[6], int start_index, int card_amount, char forbidden) {
+bool find_and_assign_noak(const bool cards[13][4], char best_cards[6], int start_index, int card_amount, char forbidden)
+{
     char tuple = n_of_a_kind(cards, card_amount, forbidden);
     if (tuple == -1) {
         return false;

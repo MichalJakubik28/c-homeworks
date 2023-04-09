@@ -152,7 +152,10 @@ void print_site_neighbors(site_t *site)
 
 bool print_dijkstra(site_t *site, unsigned int path_length)
 {
-    assert(path_length != 0);
+    if (path_length == 0) {
+        printf("No path between specified sites\n");
+        return true;
+    }
 
     unsigned int *output = calloc(path_length, sizeof(unsigned int));
     if (output == NULL) {

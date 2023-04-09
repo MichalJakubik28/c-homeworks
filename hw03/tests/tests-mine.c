@@ -8,48 +8,404 @@
 
 #include <stdlib.h>
 
-#define CONTAINERS_FILE "data/Brno-JehniceContainers.csv"
-#define PATHS_FILE "data/Brno-JehnicePaths.csv"
+#define CONTAINERS_FILE "tests/data/example-containers.csv"
+#define PATHS_FILE "tests/data/example-paths.csv"
+#define EMPTY_FILE "tests/data/empty_file"
+#define CONTAINERS1 "tests/data/containers1"
+#define PATHS1 "tests/data/paths1"
+#define CONT_BAD_ID "tests/data/cont_bad_id"
+#define CONT_DUP_ID "tests/data/cont_dup_id"
+#define CONT_BAD_X "tests/data/cont_bad_x"
+#define CONT_BAD_Y "tests/data/cont_bad_y"
+#define CONT_BAD_NUMBER "tests/data/cont_bad_number"
+#define CONT_BAD_WASTE "tests/data/cont_bad_waste"
+#define CONT_BAD_CAPACITY "tests/data/cont_bad_capacity"
+#define CONT_TOO_BIG_DEC_X "tests/data/cont_too_big_dec_x"
+#define PATH_NONEXISTENT_X "tests/data/path_nonexistent_x"
+#define PATH_NONEXISTENT_Y "tests/data/path_nonexistent_y"
+#define PATH_TOO_BIG "tests/data/path_too_big"
 
 /* The following “extentions” to CUT are available in this test file:
  *
  * • ‹CHECK_IS_EMPTY(file)› — test whether the file is empty.
  * • ‹CHECK_NOT_EMPTY(file)› — inverse of the above.
  *
- * • ‹app_main_args(ARG…)› — call your ‹main()› with given arguments.
- * • ‹app_main()› — call your ‹main()› without any arguments. */
+ * • ‹app_main_args(ARG…)› — call your ‹main()› with given arguments\n.
+ * • ‹app_main()› — call your ‹main()› without any arguments\n. */
 
-TEST(my_test)
+TEST(base_test)
 {
-    int rv = 0; /* return value of main()*/
-    CHECK(app_main_args(CONTAINERS_FILE, PATHS_FILE /*, arguments for main() */) == rv);
+    int rv = 0;
+    CHECK(app_main_args(CONTAINERS_FILE, PATHS_FILE) == rv);
 
-    /* TIP: Use ‹app_main()› to test the program without arguments. */
+    
 
     const char *correct_output =
-        "ID: 18388, Type: Plastics and Aluminium, Capacity: 1100, Address: Havlaskova 244, Neighbors: 5229 5230 5232 5233 6322 6323 10828 14420 18389 18390 18511 22102 24948 24949\n"
-            "ID: 20637, Type: Paper, Capacity: 1100, Address: Havlaskova 244, Neighbors: 6323 24948\n"
-            "ID: 13396, Type: Plastics and Aluminium, Capacity: 1100, Address: Havlaskova 244, Neighbors: 6323 24948\n"
-            "ID: 12922, Type: Paper, Capacity: 1100, Address: Havlaskova 244, Neighbors: 6323 24948\n"
-            "ID: 8007, Type: Clear glass, Capacity: 1125, Address: Havlaskova 244, Neighbors: 6323 24948\n"
-            "ID: 11164, Type: Plastics and Aluminium, Capacity: 1100, Address: Havlaskova 244, Neighbors: 6323 24948\n"
-            "ID: 8006, Type: Colored glass, Capacity: 1125, Address: Havlaskova 244, Neighbors: 6323 24948\n"
-            "ID: 6323, Type: Clear glass, Capacity: 1125, Address: Lelekovicka 115, Neighbors: 5229 5230 5232 5233 8006 8007 10828 11164 12922 13396 14420 18388 18511 20637 22102 24948 24949\n"
-            "ID: 18390, Type: Plastics and Aluminium, Capacity: 1100, Address: Lelekovicka 115, Neighbors: 18388 24948\n"
-            "ID: 6322, Type: Colored glass, Capacity: 1125, Address: Lelekovicka 115, Neighbors: 18388 24948\n"
-            "ID: 18389, Type: Paper, Capacity: 1100, Address: Lelekovicka 115, Neighbors: 18388 24948\n"
-            "ID: 24948, Type: Plastics and Aluminium, Capacity: 1100, Address: Plastky 47, Neighbors: 6322 6323 8006 8007 11164 12922 13396 18388 18389 18390 20637\n"
-            "ID: 5229, Type: Colored glass, Capacity: 2500, Address: Plastky 47, Neighbors: 6323 18388\n"
-            "ID: 5230, Type: Clear glass, Capacity: 2500, Address: Plastky 47, Neighbors: 6323 18388\n"
-            "ID: 24949, Type: Plastics and Aluminium, Capacity: 1100, Address: Plastky 47, Neighbors: 6323 18388\n"
-            "ID: 22102, Type: Textile, Capacity: 1000, Address: Plastky 47, Neighbors: 6323 18388\n"
-            "ID: 18511, Type: Plastics and Aluminium, Capacity: 1100, Address: Oresinska 278, Neighbors: 6323 18388\n"
-            "ID: 5232, Type: Colored glass, Capacity: 1125, Address: Oresinska 278, Neighbors: 6323 18388\n"
-            "ID: 5233, Type: Clear glass, Capacity: 1125, Address: Oresinska 278, Neighbors: 6323 18388\n"
-            "ID: 10828, Type: Plastics and Aluminium, Capacity: 1100, Address: Oresinska 278, Neighbors: 6323 18388\n"
-            "ID: 14420, Type: Paper, Capacity: 1100, Address: Oresinska 278, Neighbors: 6323 18388\n"
+        "ID: 1, Type: Colored glass, Capacity: 1550, Address: Drozdi 55, Neighbors: 4\n"
+            "ID: 2, Type: Clear glass, Capacity: 1550, Address: Drozdi 55, Neighbors: 4\n"
+            "ID: 3, Type: Plastics and Aluminium, Capacity: 1100, Address: Drozdi 55, Neighbors: 4\n"
+            "ID: 4, Type: Colored glass, Capacity: 900, Address: Drozdi 55, Neighbors: 1 2 3 5 8\n"
+            "ID: 5, Type: Paper, Capacity: 5000, Address: Klimesova 60, Neighbors: 4 8\n"
+            "ID: 6, Type: Colored glass, Capacity: 3000, Address: Klimesova 60, Neighbors: 8\n"
+            "ID: 7, Type: Plastics and Aluminium, Capacity: 5000, Address: Klimesova 60, Neighbors: 8\n"
+            "ID: 8, Type: Biodegradable waste, Capacity: 3000, Address: Na Buble 5, Neighbors: 4 5 6 7 11\n"
+            "ID: 9, Type: Textile, Capacity: 500, Address: Na Buble 5, Neighbors: 10\n"
+            "ID: 10, Type: Plastics and Aluminium, Capacity: 900, Address: Odlehla 70, Neighbors: 9\n"
+            "ID: 11, Type: Paper, Capacity: 2000, Address: Odlehla 70, Neighbors: 8\n"
     ;
 
     ASSERT_FILE(stdout, correct_output);
     CHECK_FILE(stderr, "" /* STDERR is empty*/);
+}
+
+TEST(empty_files)
+{
+    int rv = 0;
+    CHECK(app_main_args(EMPTY_FILE, EMPTY_FILE) == rv);
+
+    
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "" /* STDERR is empty*/);
+}
+
+TEST(invalid_arg1)
+{
+    int rv = 1;
+    CHECK(app_main_args("-g", "-s", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+    
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Invalid -g argument\n");
+}
+
+TEST(invalid_arg2)
+{
+    int rv = 1;
+    CHECK(app_main_args("-t", "-p", "-c", "-s", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+    
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Invalid waste type filter parameter\n");
+}
+
+TEST(invalid_arg3)
+{
+    int rv = 1;
+    CHECK(app_main_args("-t", "-p", "-c", "-g", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+    
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Invalid waste type filter parameter\n");
+}
+
+TEST(invalid_arg4)
+{
+    int rv = 1;
+    CHECK(app_main_args(PATHS_FILE) == rv);
+
+    
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
+}
+
+TEST(invalid_arg5)
+{
+    int rv = 1;
+    CHECK(app_main_args("-t", "-p", "-c", PATHS_FILE) == rv);
+
+    
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not initialize files\n");
+}
+
+TEST(invalid_arg6)
+{
+    int rv = 1;
+    CHECK(app_main_args("-t", "-p", "-t", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
+}
+
+TEST(sample1)
+{
+    int rv = 0;
+    CHECK(app_main_args(CONTAINERS1, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            "ID: 1, Type: Colored glass, Capacity: 2000, Address: TEST 44, Neighbors:\n"
+            "ID: 2, Type: Textile, Capacity: 2000, Address: TEST 44, Neighbors:\n"
+            "ID: 3, Type: Paper, Capacity: 2000, Address: TEST 4446, Neighbors:\n"
+            "ID: 4, Type: Biodegradable waste, Capacity: 2000, Address: TEST, Neighbors:\n"
+            "ID: 5, Type: Plastics and Aluminium, Capacity: 2000, Address: TESTik 44, Neighbors:\n"
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "");
+}
+
+TEST(sample2)
+{
+    int rv = 0;
+    CHECK(app_main_args("-s", CONTAINERS1, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            "1;CT;\n"
+            "2;P;\n"
+            "3;B;\n"
+            "4;A;\n"
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "");
+}
+
+TEST(sample3)
+{
+    int rv = 0;
+    CHECK(app_main_args("-g", "1,4", CONTAINERS1, PATHS1) == rv);
+
+
+    const char *correct_output =
+            "1-2-3-4 1000\n"
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "");
+}
+
+TEST(invalid_path)
+{
+    int rv = 1;
+    CHECK(app_main_args("-g", "1,5", CONTAINERS1, PATHS1) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Invalid start or target point\n");
+}
+
+TEST(sample4)
+{
+    int rv = 0;
+    CHECK(app_main_args("-g", "1,4", CONTAINERS1, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            "No path between specified sites\n"
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "");
+}
+
+TEST(invalid_containers)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_ID, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers2)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_DUP_ID, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers3)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_X, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers4)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_Y, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers5)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_NUMBER, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers6)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_WASTE, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers7)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_CAPACITY, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers8)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_TOO_BIG_DEC_X, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_paths1)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONTAINERS_FILE, PATH_NONEXISTENT_X) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load paths\n");
+}
+
+TEST(invalid_paths2)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONTAINERS_FILE, PATH_NONEXISTENT_Y) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load paths\n");
+}
+
+TEST(invalid_paths3)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONTAINERS_FILE, PATH_TOO_BIG) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load paths\n");
+}
+
+TEST(filter_test)
+{
+    int rv = 0;
+    CHECK(app_main_args("-t", "AGCPT", "-c", "1000-5000", "-p", "Y", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            "ID: 1, Type: Colored glass, Capacity: 1550, Address: Drozdi 55, Neighbors: 4\n"
+            "ID: 2, Type: Clear glass, Capacity: 1550, Address: Drozdi 55, Neighbors: 4\n"
+            "ID: 3, Type: Plastics and Aluminium, Capacity: 1100, Address: Drozdi 55, Neighbors: 4\n"
+            "ID: 11, Type: Paper, Capacity: 2000, Address: Odlehla 70, Neighbors: 8\n"
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "");
 }

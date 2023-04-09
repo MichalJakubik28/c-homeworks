@@ -23,12 +23,12 @@ void relax(s_list_t *sites, site_t *site)
     }
 }
 
-int dijkstra(s_list_t *sites, unsigned int start_id, unsigned int target_id, site_t *target_site)
+bool dijkstra(s_list_t *sites, unsigned int start_id, unsigned int target_id, site_t **target_site)
 {
     s_node_t *starting_site = s_get_by_id(sites, start_id);
     s_node_t *ending_site = s_get_by_id(sites, target_id);
     if (starting_site == NULL || ending_site == NULL) {
-        return INVALID_TARGET;
+        return false;
     }
 
     starting_site->site->shortest_distance = 0;
@@ -39,8 +39,8 @@ int dijkstra(s_list_t *sites, unsigned int start_id, unsigned int target_id, sit
 
     while (curr_site != NULL) {
         if (curr_site == ending_site && curr_site->site->shortest_distance != UINT_MAX) {
-            *target_site = *curr_site->site;
-            return PATH_FOUND;
+            *target_site = curr_site->site;
+            return true;
         }
         relax(sites, curr_site->site);
 
@@ -48,11 +48,15 @@ int dijkstra(s_list_t *sites, unsigned int start_id, unsigned int target_id, sit
     }
 
     // no path
-    return NO_PATH;
+    return true;
 }
 
 unsigned int path_length(site_t *site)
 {
+    if (site == NULL) {
+        return 0;
+    }
+
     site_t *prev = site->predecessor;
     int counter = 1;
     while (prev != NULL) {

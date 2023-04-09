@@ -12,9 +12,6 @@
 #include <string.h>
 
 bool assess_filter_validation(int return_code, bool *filters, int index);
-bool filter_waste_type(container_t *container1, bool filter_used, char waste_types[7]);
-bool filter_capacity(container_t *container1, bool filter_used, const unsigned int capacity[2]);
-bool filter_accessibility(container_t *container1, bool filter_used, bool public);
 
 int main(int argc, char *argv[])
 {
@@ -107,28 +104,24 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
 
-            site_t target;
+            site_t *target = NULL;
             int result = dijkstra(sites, nodes[0], nodes[1], &target);
-            if (result == INVALID_TARGET) {
+            if (!result) {
                 fprintf(stderr, "Invalid start or target point\n");
                 destroy_sites(sites);
                 destroy_containers(containers);
                 return EXIT_FAILURE;
-            } else if (result == NO_PATH) {
-                print_dijkstra(&target, 0);
-            } else {
-                unsigned int length = path_length(&target);
-                if (length == 0) {
-                    printf("No path between specified sites\n");
-                } else {
-                    if (!print_dijkstra(&target, length)) {
-                        fprintf(stderr, "Could not allocate memory for path printing\n");
-                        destroy_sites(sites);
-                        destroy_containers(containers);
-                        return EXIT_FAILURE;
-                    }
-                }
             }
+
+            unsigned int length = path_length(target);
+
+            if (!print_dijkstra(target, length)) {
+                fprintf(stderr, "Could not allocate memory for path printing\n");
+                destroy_sites(sites);
+                destroy_containers(containers);
+                return EXIT_FAILURE;
+            }
+
         }
 
         destroy_sites(sites);

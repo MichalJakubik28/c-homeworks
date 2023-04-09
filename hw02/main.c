@@ -114,47 +114,45 @@ void find_best_combination(char best_cards[6], const bool player_cards[13][4])
         memset(best_cards, -1, 6);
     }
 
-    // no combination found, fill with highest cards
+    // no combination found, fill with the highest cards
     fill_with_highest(best_cards, player_cards, -1, 5);
     best_cards[0] = '\0';
 }
 
-int read_input_cards(const int players, bool cards[players][13][4])
+int read_player_cards(int player_number, char *card_value, char *card_color, int players, bool cards[players][13][4])
 {
-    char card_value = 0;
-    char card_color = 0;
-
-    for (int i = 0; i < players; i++) {
-        for (int j = 0; j < 2; j++) {
-            int scanned = scanf(" %c%c", &card_value, &card_color);
-            if (scanned == EOF && i == 0 && j == 0) {
-                return NO_CARDS;
-            }
-            if (scanned != 2) {
-                fprintf(stderr, "Error reading card %d of player %d\n", j + 1, i + 1);
-                return CARDS_ERROR;
-            }
-            if (j == 0) {
-                int whitespaces = 0;
-                scanf(" %n", &whitespaces);
-                if (whitespaces == 0) {
-                    fprintf(stderr, "No whitespace after first card of player %d\n", i + 1);
-                    return CARDS_ERROR;
-                }
-            }
-            // value and color conversion
-            if (convert_and_store(card_value, card_color, players, i, cards) == CARDS_ERROR) {
+    for (int j = 0; j < 2; j++) {
+        int scanned = scanf(" %c%c", card_value, card_color);
+        if (scanned == EOF && player_number == 0 && j == 0) {
+            return NO_CARDS;
+        }
+        if (scanned != 2) {
+            fprintf(stderr, "Error reading card %d of player %d\n", j + 1, player_number + 1);
+            return CARDS_ERROR;
+        }
+        if (j == 0) {
+            int whitespaces = 0;
+            scanf(" %n", &whitespaces);
+            if (whitespaces == 0) {
+                fprintf(stderr, "No whitespace after first card of player %d\n", player_number + 1);
                 return CARDS_ERROR;
             }
         }
-        int newline = getchar();
-        if (newline != '\n') {
-            fprintf(stderr, "Wrong separator of player %d\n", i + 1);
+        // value and color conversion
+        if (convert_and_store(*card_value, *card_color, players, player_number, cards) == CARDS_ERROR) {
             return CARDS_ERROR;
         }
     }
+    int newline = getchar();
+    if (newline != '\n') {
+        fprintf(stderr, "Wrong separator of player %d\n", player_number + 1);
+        return CARDS_ERROR;
+    }
+    return CARDS_OK;
+}
 
-    // read table cards
+int read_table_cards(char card_value, char card_color, int players, bool cards[players][13][4])
+{
     for (int i = 0; i < 5; i++) {
         int scanned = scanf(" %c%c", &card_value, &card_color);
         if (scanned != 2) {
@@ -178,6 +176,25 @@ int read_input_cards(const int players, bool cards[players][13][4])
     if (newline != '\n') {
         fprintf(stderr, "Wrong separator at end of table cards\n");
         return CARDS_ERROR;
+    }
+    return CARDS_OK;
+}
+
+int read_input_cards(const int players, bool cards[players][13][4])
+{
+    char card_value = 0;
+    char card_color = 0;
+
+    for (int i = 0; i < players; i++) {
+        int card_status = read_player_cards(i, &card_value, &card_color, players, cards);
+        if (card_status != CARDS_OK) {
+            return card_status;
+        }
+    }
+
+    int table_status = read_table_cards(card_value, card_color, players, cards);
+    if (table_status != CARDS_OK) {
+        return table_status;
     }
 
     return CARDS_OK;

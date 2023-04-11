@@ -15,7 +15,7 @@ bool assess_filter_validation(int return_code, bool *filters, int index);
 
 int main(int argc, char *argv[])
 {
-    // input parsing and validation
+    // decide on mode based on command line switches
     int mode = decide_mode(argc, argv);
 
     if (mode == INPUT_ERROR) {
@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    // data source no longer needed, can be destroyed
     destroy_data_source();
 
     if (mode == FILTER) {
@@ -80,6 +81,7 @@ int main(int argc, char *argv[])
     }
 
     else if (mode == CLUSTER || mode == GRAPH) {
+        // both clustering and shortest path need to create sites first
         s_list_t *sites = assign_sites_to_containers(containers);
         if (sites == NULL) {
             fprintf(stderr, "Could not create sites\n");
@@ -96,7 +98,9 @@ int main(int argc, char *argv[])
         if (mode == CLUSTER) {
             print_sites(sites);
         } else {
+            // on top of sites, shortest path also needs to run dijkstra on the sites graph
             unsigned int nodes[] = { 0, 0 };
+            // validate command line arguments of the task (syntax only)
             if (!validate_graph(argv, nodes)) {
                 fprintf(stderr, "Invalid -g argument\n");
                 destroy_sites(sites);
@@ -104,6 +108,7 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
 
+            // run dijkstra on graph
             site_t *target = NULL;
             int result = dijkstra(sites, nodes[0], nodes[1], &target);
             if (!result) {
@@ -115,6 +120,7 @@ int main(int argc, char *argv[])
 
             unsigned int length = path_length(target);
 
+            // print found path
             if (!print_dijkstra(target, length)) {
                 fprintf(stderr, "Could not allocate memory for path printing\n");
                 destroy_sites(sites);
@@ -134,7 +140,7 @@ int main(int argc, char *argv[])
 
     destroy_containers(containers);
 
-    return EXIT_SUCCESS; // May your program be as successful as this macro. Good luck!
+    return EXIT_SUCCESS;
 }
 
 bool assess_filter_validation(int return_code, bool *filters, int index)

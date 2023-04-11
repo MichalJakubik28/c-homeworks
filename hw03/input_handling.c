@@ -171,7 +171,7 @@ bool parse_types(char *input, char *types)
     return true;
 }
 
-bool split_and_parse_values(char input[], unsigned int values[2], int delimiter)
+bool split_and_parse_values(char *input, unsigned int values[2], int delimiter)
 {
     char *delim = strchr(input, delimiter);
     if (delim == NULL) {
@@ -186,7 +186,6 @@ bool split_and_parse_values(char input[], unsigned int values[2], int delimiter)
         char *unparsed = 0;
         unsigned long value_long = strtol(value, &unparsed, 10);
 
-        //        printf("Number: %ld Not parsed: %s\n", value_long, unparsed);
         if (unparsed[0] != 0 || value_long >= UINT_MAX) {
             return false;
         }

@@ -32,6 +32,8 @@ bool dijkstra(s_list_t *sites, unsigned int start_id, unsigned int target_id, si
     }
 
     starting_site->site->shortest_distance = 0;
+
+    // priority queue! (although time complexity is ruined anyway :/ )
     remove_from_list(sites, starting_site);
     s_list_insert_by_distance(sites, starting_site);
 

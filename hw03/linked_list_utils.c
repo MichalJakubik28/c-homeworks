@@ -100,94 +100,6 @@ void list_append(llist *list, ll_node *node)
     node->next = NULL;
 }
 
-// appending neighbors
-bool n_list_append(llist *list, void *data, unsigned int distance)
-{
-    assert(list != NULL);
-    assert(data != NULL);
-
-    lln_node *new_node = malloc(sizeof(lln_node));
-
-    if (new_node == NULL) {
-        return false;
-    }
-
-    new_node->data = data;
-    new_node->distance = distance;
-
-    if (list->head == NULL) {
-        list->head = new_node;
-        new_node->prev = NULL;
-    } else {
-        list->tail->next = new_node;
-        new_node->prev = list->tail;
-    }
-    list->tail = new_node;
-    new_node->next = NULL;
-
-    return true;
-}
-
-// add new site node - node with site struct in it
-bool s_list_append(s_list_t *list, double x, double y)
-{
-    assert(list != NULL);
-
-    s_node_t *new_node = malloc(sizeof(s_node_t));
-    if (new_node == NULL) {
-        return false;
-    }
-
-    site_t *site = malloc(sizeof(site_t));
-    if (site == NULL) {
-        free(new_node);
-        return NULL;
-    }
-
-    new_node->site = site;
-    new_node->site->x = x;
-    new_node->site->y = y;
-    new_node->site->neighbors = NULL;
-
-    if (list->head == NULL) {
-        list->head = new_node;
-        new_node->prev = NULL;
-    } else {
-        list->tail->next = new_node;
-        new_node->prev = list->tail;
-    }
-    list->tail = new_node;
-    new_node->next = NULL;
-
-    return true;
-}
-
-//bool c_list_append(c_list_t *list, container_t *container)
-//{
-//    assert(list != NULL);
-//    assert(container != NULL);
-//
-//    c_node_t *new_node = malloc(sizeof(cn_node_t));
-//
-//    if (new_node == NULL) {
-//        return false;
-//    }
-//
-//    new_node->container = container;
-//
-//    if (list->head == NULL) {
-//        list->head = new_node;
-//        new_node->prev = NULL;
-//    } else {
-//        list->tail->next = new_node;
-//        new_node->prev = list->tail;
-//    }
-//    list->tail = new_node;
-//    new_node->next = NULL;
-//
-//    return true;
-//}
-
 void list_push_front(llist *list, lln_node *node)
 {
     assert(list != NULL);
@@ -203,34 +115,6 @@ void list_push_front(llist *list, lln_node *node)
     }
     node->prev = NULL;
     list->head = node;
-}
-
-bool n_list_push_front(cn_list_t *list, container_t *container1, unsigned int distance)
-{
-    assert(list != NULL);
-    assert(container1 != NULL);
-
-    cn_node_t *new_node = malloc(sizeof(cn_node_t));
-
-    if (new_node == NULL) {
-        return false;
-    }
-
-    new_node->container = container1;
-    new_node->distance = distance;
-
-    if (list->head == NULL) {
-        new_node->next = NULL;
-        list->head = new_node;
-        list->tail = new_node;
-    } else {
-        list->head->prev = new_node;
-        new_node->next = list->head;
-    }
-    new_node->prev = NULL;
-    list->head = new_node;
-
-    return true;
 }
 
 container_t *c_get_by_id(c_list_t *list, size_t id)
@@ -383,59 +267,6 @@ void destroy_sites(s_list_t *list)
     list->tail = NULL;
     free(list);
 }
-
-//bool n_list_append(cn_list_t  *list, container_t *container, unsigned int distance)
-//{
-//    assert(list != NULL);
-//    assert(container != NULL);
-//
-//    cn_node_t *new_node = malloc(sizeof(cn_node_t));
-//
-//    if (new_node == NULL) {
-//        return false;
-//    }
-//
-//    new_node->container = container;
-//    new_node->distance = distance;
-//
-//    if (list->head == NULL) {
-//        list->head = new_node;
-//        new_node->prev = NULL;
-//    } else {
-//        list->tail->next = new_node;
-//        new_node->prev = list->tail;
-//    }
-//    list->tail = new_node;
-//    new_node->next = NULL;
-//
-//    return true;
-//}
-
-//void list_insert(llist *list, lln_node *node) {
-//    assert(list != NULL);
-//    assert(node != NULL);
-//
-//    lln_node *curr_node = list->head;
-//
-//    while (curr_node != NULL) {
-//        lln_node *next = curr_node->next;
-//        if (node->data->id < () curr_node->data {
-//            if (curr_node == list->head) {
-//                return list_push_front(list, node);
-//            }
-//
-//            // set pointers
-//            cn_node_t *prev = curr_node->prev;
-//            new_node->next = curr_node;
-//            new_node->prev = prev;
-//            curr_node->prev = new_node;
-//            prev->next = new_node;
-//            return;
-//        }
-//        curr_node = next;
-//    }
-//    list_append((llist *) list, (ll_node *) node);
-//}
 
 void cn_list_insert(cn_list_t *list, cn_node_t *node)
 {

@@ -52,7 +52,6 @@ s_list_t *assign_sites_to_containers(c_list_t *containers)
         add_to_types(node->container->waste_type, site_node->site->waste_types);
 
         node = next;
-
     }
     return sites_list;
 }

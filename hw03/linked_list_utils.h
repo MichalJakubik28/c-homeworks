@@ -135,7 +135,6 @@ void list_append(llist *list, ll_node *node);
  */
 void remove_from_list(s_list_t *list, s_node_t *node_to_remove);
 
-
 // functions that could not be united because they work with specific structures
 
 /**

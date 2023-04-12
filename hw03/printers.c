@@ -1,8 +1,8 @@
 #include "printers.h"
 
+#include "filters.h"
 #include "input_handling.h"
 #include "linked_list_utils.h"
-#include "filters.h"
 
 #include <assert.h>
 #include <limits.h>

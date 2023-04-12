@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
                 destroy_containers(containers);
                 return EXIT_FAILURE;
             }
-
         }
 
         destroy_sites(sites);

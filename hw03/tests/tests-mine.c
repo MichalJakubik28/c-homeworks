@@ -24,6 +24,7 @@
 #define PATH_NONEXISTENT_X "tests/data/path_nonexistent_x.csv"
 #define PATH_NONEXISTENT_Y "tests/data/path_nonexistent_y.csv"
 #define PATH_TOO_BIG "tests/data/path_too_big.csv"
+#define CONT_BAD_ACCESS "tests/data/cont_bad_access.csv"
 
 /* The following “extentions” to CUT are available in this test file:
  *
@@ -162,6 +163,76 @@ TEST(invalid_arg6)
     CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
 }
 
+TEST(invalid_arg7)
+{
+    int rv = 1;
+    CHECK(app_main_args("-t", "AAAAAAAAAAAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPCCCCCCCCCCCCCCCCCCCCCCCCCCGGGGGGGGGGGGGGGGGGGGGTTTTTTTTTTTTTTTBBBBBBBBBkB", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Invalid waste type filter parameter\n");
+}
+
+TEST(invalid_arg8)
+{
+    int rv = 1;
+    CHECK(app_main_args("-t", "A", "-t", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
+}
+
+TEST(invalid_arg9)
+{
+    int rv = 1;
+    CHECK(app_main_args("-s", "-s", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
+}
+
+TEST(invalid_arg10)
+{
+    int rv = 1;
+    CHECK(app_main_args("-c", "100-200", "-c", "100-300", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
+}
+
+TEST(invalid_arg11)
+{
+    int rv = 1;
+    CHECK(app_main_args("-g", "1,2", "-g", "1,2", CONTAINERS_FILE, PATHS_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not parse input - invalid or not enough arguments\n");
+}
+
 TEST(sample1)
 {
     int rv = 0;
@@ -174,6 +245,9 @@ TEST(sample1)
             "ID: 3, Type: Paper, Capacity: 2000, Address: TEST 4446, Neighbors:\n"
             "ID: 4, Type: Biodegradable waste, Capacity: 2000, Address: TEST, Neighbors:\n"
             "ID: 5, Type: Plastics and Aluminium, Capacity: 2000, Address: TESTik 44, Neighbors:\n"
+            "ID: 128, Type: Clear glass, Capacity: 2000, Address:, Neighbors:\n"
+            "ID: 129, Type: Clear glass, Capacity: 1, Address: 124, Neighbors:\n"
+
             ;
 
     ASSERT_FILE(stdout, correct_output);
@@ -191,6 +265,8 @@ TEST(sample2)
             "2;P;\n"
             "3;B;\n"
             "4;A;\n"
+            "5;G;\n"
+            "6;G;\n"
             ;
 
     ASSERT_FILE(stdout, correct_output);
@@ -214,7 +290,7 @@ TEST(sample3)
 TEST(invalid_path)
 {
     int rv = 1;
-    CHECK(app_main_args("-g", "1,5", CONTAINERS1, PATHS1) == rv);
+    CHECK(app_main_args("-g", "1,10", CONTAINERS1, PATHS1) == rv);
 
 
     const char *correct_output =
@@ -341,6 +417,20 @@ TEST(invalid_containers8)
 {
     int rv = 1;
     CHECK(app_main_args(CONT_TOO_BIG_DEC_X, EMPTY_FILE) == rv);
+
+
+    const char *correct_output =
+            ""
+            ;
+
+    ASSERT_FILE(stdout, correct_output);
+    CHECK_FILE(stderr, "Could not load containers\n");
+}
+
+TEST(invalid_containers9)
+{
+    int rv = 1;
+    CHECK(app_main_args(CONT_BAD_ACCESS, EMPTY_FILE) == rv);
 
 
     const char *correct_output =

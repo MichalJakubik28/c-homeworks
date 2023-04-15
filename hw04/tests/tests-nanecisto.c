@@ -4,7 +4,7 @@
 
 #define PERSONS_SIMPLEST "tests/data/nanecisto/persons_simplest.txt" 
 #define CURRENCIES_SIMPLEST "tests/data/nanecisto/currencies_simplest.txt"
-#define PAYMENTS_SIMPLEST "tests/data/payments_simplest.txt"
+#define PAYMENTS_SIMPLEST "tests/data/nanecisto/payments_simplest.txt"
 
 #define PAYMENTS_NO_SETTLE "tests/data/nanecisto/payments_noSettle.txt"
 

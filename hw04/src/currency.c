@@ -60,6 +60,7 @@ void init_currency_table(struct currency_table *table)
     table->main_currency = 0;
     table->size = 0;
     OP(table->currencies = (struct currency *) malloc(sizeof(struct currency) * table->capacity), ALLOCATION_FAILED);
+    // netreba & ?
     object_set_destructor(table, destroy_currency_table);
 }
 
@@ -83,6 +84,8 @@ void add_currency(struct currency_table *table, const char *name, int rating)
     if (!rating)
         table->main_currency = table->currencies[table->size].name;
     ++table->size;
+
+    ensort(table);
 }
 
 int convert_currency(struct currency_table *table, int amount, const char *currency)

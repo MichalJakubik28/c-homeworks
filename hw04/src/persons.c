@@ -38,19 +38,19 @@ static int person_cmp(const void *_id, const void *_person)
 
 struct person *find_person(const struct persons *persons, const char *id)
 {
-    return (struct person *) bsearch(id, persons->size, persons->persons, sizeof(struct person), person_cmp);
+    return (struct person *) bsearch(id, persons->persons, persons->size, sizeof(struct person), person_cmp);
 }
 
 static void destroy_persons(void *p)
 {
     struct persons *persons = (struct persons *) p;
 
-    /*
-    for (int i = 0; i != persons->size; ++i) {
+
+    for (int i = 0; i < persons->size; ++i) {
         free(persons->persons[i].id);  // SEGFAULT here?
         free(persons->persons[i].name);
     }
-    */
+
     free(persons->persons);
 }
 
@@ -60,6 +60,7 @@ void init_persons(struct persons *persons)
     persons->capacity = 16;
     persons->size = 0;
     OP(persons->persons = (struct person *) malloc(sizeof(struct person) * persons->capacity), ALLOCATION_FAILED);
+    // netreba & ?
     object_set_destructor(persons, destroy_persons);
 }
 
@@ -76,9 +77,19 @@ void add_person(struct persons *persons, const char *id, const char *name)
 
     struct person *p = &persons->persons[persons->size];
     memset(p, 0, sizeof(*p));
-    p->id = id;
-    p->name = name;
-    ++persons->size;
+    p->id = copy_string(id);
+//    char *new_id = NULL;
+//    OP(new_id = (char *) malloc((strlen(id) + 1) * sizeof(char)), ALLOCATION_FAILED);
+//    strcpy(new_id, id);
+//    p->id = new_id;
+
+    p->name = copy_string(name);
+//    char *new_name;
+//    OP(new_name = (char *) malloc((strlen(name) + 1) * sizeof(char)), ALLOCATION_FAILED);
+//    strcpy(new_name, name);
+//    p->name = new_name;
+
+    persons->size++;
 
     ensort(persons);
 }

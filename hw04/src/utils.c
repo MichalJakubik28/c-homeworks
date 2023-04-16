@@ -11,6 +11,7 @@ void object_destroy(void *o)
 {
     struct object *object = (struct object *) o;
 
+    // skontroluje ci funkcia tam je, potom destroy
     object->destruct && (object->destruct(o), 1);
 }
 

@@ -5,7 +5,6 @@
 #include "persons.h"
 #include "utils.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,7 +115,11 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
 
             struct person *p;
             OP(p = find_person(persons, from), PERSON_NOT_FOUND);
+
             p->amount += value / from_count;
+//            if (value % from_count >= 5) {
+//                p->amount++;
+//            }
 
             from = end;
         } while (last_char && ++from);
@@ -129,7 +132,11 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
 
             struct person *p;
             OP(p = find_person(persons, to), PERSON_NOT_FOUND);
-            p->amount -= value / from_count;
+
+            p->amount -= value / to_count;
+//            if (value % to_count >= 5) {
+//                p->amount--;
+//            }
 
             to = end;
         } while (last_char && ++to);

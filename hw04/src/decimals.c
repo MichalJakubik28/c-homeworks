@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
-static int normalize(int number, int upper)
+static int normalize(int number, char str[4])
 {
-    int lower = upper / 10;
-    while (number < lower)
+    for (int i = 0; i < 4 - strlen(str); i++) {
         number *= 10;
-    while (number > upper)
-        number /= 10;
+    }
     return number;
 }
 
@@ -24,13 +22,16 @@ int load_decimal(const char *string, int decimals)
     int base = decimals_to_base(decimals);
     if (!strchr(string, '.')) {
         int result;
-        sscanf(string, "%i", &result);
+        sscanf(string, "%d  ", &result);
         return result * base;
     }
 
     int large;
-    int small;
-    sscanf(string, "%i.%i", &large, &small);
+    char small[5];
+    memset(small, 0, 5);
+    sscanf(string, "%d.%4s", &large, small);
+    int small_num;
+    sscanf(small, "%d", &small_num);
 
-    return large * base + normalize(small, base);
+    return large * base + normalize(small_num, small);
 }

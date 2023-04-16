@@ -30,7 +30,7 @@ static const char *resolve_message(enum error_codes code)
 {
     static char unknownError[128];
     switch (code) {
-    case INITAL_PASS:
+    case INITIAL_PASS:
     case SUCCESS:
         return "OK";
     case DUPLICIT_INITIALIZATION:

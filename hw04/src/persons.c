@@ -1,5 +1,5 @@
 #include "persons.h"
-
+#include "big_int.h"
 #include "errors.h"
 #include "utils.h"
 
@@ -78,16 +78,8 @@ void add_person(struct persons *persons, const char *id, const char *name)
     struct person *p = &persons->persons[persons->size];
     memset(p, 0, sizeof(*p));
     p->id = copy_string(id);
-//    char *new_id = NULL;
-//    OP(new_id = (char *) malloc((strlen(id) + 1) * sizeof(char)), ALLOCATION_FAILED);
-//    strcpy(new_id, id);
-//    p->id = new_id;
-
     p->name = copy_string(name);
-//    char *new_name;
-//    OP(new_name = (char *) malloc((strlen(name) + 1) * sizeof(char)), ALLOCATION_FAILED);
-//    strcpy(new_name, name);
-//    p->name = new_name;
+    big_int_init(&p->amount);
 
     persons->size++;
 

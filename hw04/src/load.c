@@ -40,6 +40,7 @@ void load_currency_table(struct currency_table *table, FILE *input)
 
         add_currency(table, name, load_decimal(rating, RATING_DECIMALS));
     }
+    OP(table->main_currency != NULL, DEFAULT_CURRENCY_NOT_SET);
     leave();
 }
 
@@ -68,6 +69,7 @@ void load_persons(struct persons *persons, FILE *input)
 
         add_person(persons, id, name);
     }
+    OP(persons->size > 1, NOT_ENOUGH_PERSONS);
     leave();
 }
 
@@ -102,7 +104,10 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
         char *currency = trim_string(end + 1, &end);
         *end = '\0';
 
-        int value = convert_currency(table, load_decimal(amount, PAYMENT_DECIMALS), currency);
+        long value = convert_currency(table, load_decimal(amount, PAYMENT_DECIMALS), currency);
+        big_int enlarged_value;
+        big_int_init(&enlarged_value);
+        big_int_convert(&enlarged_value, value);
         int from_count = char_count(from, ';') + 1;
         int to_count = char_count(to, ';') + 1;
 
@@ -116,10 +121,10 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
             struct person *p;
             OP(p = find_person(persons, from), PERSON_NOT_FOUND);
 
-            p->amount += value / from_count;
-//            if (value % from_count >= 5) {
-//                p->amount++;
-//            }
+            big_int divided;
+            big_int_init(&divided);
+            big_int_div_by_int(&enlarged_value, &divided, from_count);
+            big_int_add(&p->amount, &divided, &p->amount);
 
             from = end;
         } while (last_char && ++from);
@@ -133,10 +138,10 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
             struct person *p;
             OP(p = find_person(persons, to), PERSON_NOT_FOUND);
 
-            p->amount -= value / to_count;
-//            if (value % to_count >= 5) {
-//                p->amount--;
-//            }
+            big_int divided;
+            big_int_init(&divided);
+            big_int_div_by_int(&enlarged_value, &divided, to_count);
+            big_int_subtract(&p->amount, &divided, &p->amount);
 
             to = end;
         } while (last_char && ++to);

@@ -12,7 +12,7 @@ static void validate_person(struct persons *persons, const char *id, const char 
     ASSERT(p);
     CHECK(strcmp(p->name, name) == 0);
     CHECK(strcmp(p->id, id) == 0);
-    CHECK(p->amount == 0);
+    CHECK(big_int_is_zero(&p->amount, 7));
 }
 
 

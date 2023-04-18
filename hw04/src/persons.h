@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "big_int.h"
 
 #ifndef PERSONS_H
 #define PERSONS_H
@@ -7,7 +8,7 @@ struct person
 {
     char *id;
     char *name;
-    int amount;
+    big_int amount;
 };
 
 struct persons

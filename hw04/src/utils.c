@@ -11,8 +11,9 @@ void object_destroy(void *o)
 {
     struct object *object = (struct object *) o;
 
-    // skontroluje ci funkcia tam je, potom destroy
-    object->destruct && (object->destruct(o), 1);
+    if (object->destruct != NULL) {
+        object->destruct(o);
+    }
 }
 
 void object_set_destructor(void *o, void (*destructor)(void *))
@@ -34,7 +35,7 @@ char *copy_string(const char *str)
 {
     char *copy;
     OP(copy = (char *) malloc(strlen(str) + 1), ALLOCATION_FAILED);
-    strcpy(copy, str);
+    strncpy(copy, str, strlen(str) + 1);
     return copy;
 }
 
@@ -102,7 +103,17 @@ char *read_line(FILE *input)
             }
             buffer = tmp;
         }
-        buffer[size++] = c;
+        buffer[size] = (char) c;
+        size++;
+    }
+    if (size == capacity) {
+        capacity++;
+        char *tmp = (char *) realloc(buffer, capacity);
+        if (!tmp) {
+            free(buffer);
+            error_happened(ALLOCATION_FAILED);
+        }
+        buffer = tmp;
     }
     buffer[size] = '\0';
     return buffer;

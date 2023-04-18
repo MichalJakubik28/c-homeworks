@@ -1,6 +1,7 @@
 #include "errors.h"
 
 #include <stdio.h>
+#include <string.h>
 
 static jmp_buf *point;
 
@@ -21,7 +22,7 @@ int error_happened(enum error_codes code)
 }
 
 __attribute__((noreturn))
-void exit_success()
+void exit_success(void)
 {
     error_happened(SUCCESS);
 }
@@ -29,6 +30,7 @@ void exit_success()
 static const char *resolve_message(enum error_codes code)
 {
     static char unknownError[128];
+    memset(unknownError, 0, 128);
     switch (code) {
     case INITIAL_PASS:
     case SUCCESS:
@@ -43,8 +45,16 @@ static const char *resolve_message(enum error_codes code)
         return "duplicated main currency";
     case CURRENCY_NOT_FOUND:
         return "currency not found";
+    case DEFAULT_CURRENCY_NOT_SET:
+        return "default currency not set";
+    case NEGATIVE_CURRENCY_RATING:
+        return "negative currency rating found";
     case PERSON_ALREADY_PRESENT:
         return "person already present";
+    case NOT_ENOUGH_PERSONS:
+        return "not enough persons in input file";
+    case INVALID_NUMBER_IN_FILE:
+        return "invalid amount in input files";
     case INVALID_ARGUMENTS:
         return "invalid arguments; use <program> <person-file> <currency-file> <payments-file>";
     default:

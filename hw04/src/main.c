@@ -2,7 +2,7 @@
 #include "errors.h"
 #include "load.h"
 #include "persons.h"
-#include "structures.h"
+
 
 #include <string.h>
 
@@ -12,7 +12,7 @@ struct person *find_extreme(struct persons *persons, int sign)
         return NULL;
     struct person *extreme = &persons->persons[0];
     for (int i = 1; i < persons->size; ++i) {
-        if (persons->persons[i].amount * sign > extreme->amount * sign)
+        if (big_int_cmp(&persons->persons[i].amount, &extreme->amount, sign) == sign)
             extreme = &persons->persons[i];
     }
     return extreme;
@@ -24,16 +24,23 @@ void settle_debt(struct persons *persons, struct currency_table *table)
         struct person *debtor = find_extreme(persons, -1);
         struct person *creditor = find_extreme(persons, 1);
 
-        int amount = -debtor->amount;
-        if (amount > creditor->amount)
+        big_int amount;
+        big_int_init(&amount);
+        big_int_subtract(&amount, &debtor->amount, &amount);
+
+        if (big_int_cmp(&amount, &creditor->amount, 1) == 1)
+            // urobi sa kopia?
             amount = creditor->amount;
-        if (amount == 0) {
+        if (big_int_is_zero(&amount, 7)) {
             return;
         }
 
-        debtor->amount += amount;
-        creditor->amount -= amount;
-        printf("%s (%s) -> %s (%s): %.2f %s\n", debtor->name, debtor->id, creditor->name, creditor->id, amount / 100.0, table->main_currency);
+        big_int_add(&debtor->amount, &amount, &debtor->amount);
+        big_int_subtract(&creditor->amount, &amount, &creditor->amount);
+
+        printf("%s (%s) -> %s (%s): ", debtor->name, debtor->id, creditor->name, creditor->id);
+        big_int_print(&amount);
+        printf(" %s\n", table->main_currency);
     }
 }
 
@@ -56,9 +63,15 @@ int main(int argc, char **argv)
         object_destroy(&persons);
 
         // skontroluje ci file nie je null a zavrie ho
-        person_file &&fclose(person_file);
-        currency_file &&fclose(currency_file);
-        payment_file &&fclose(payment_file);
+        if (person_file != NULL) {
+            fclose(person_file);
+        }
+        if (currency_file != NULL) {
+            fclose(currency_file);
+        }
+        if (payment_file != NULL) {
+            fclose(payment_file);
+        }
 
         if (error_code != SUCCESS)
             print_error_message(error_code);
@@ -66,23 +79,34 @@ int main(int argc, char **argv)
         return return_code(error_code);
     }
 
-    OP(argc == 4, INVALID_ARGUMENTS);
+    OP(argc >= 4, INVALID_ARGUMENTS);
+    int bonus = strcmp(argv[1], "--bonus") == 0 ? 1 : 0;
+    if (bonus == 1) {
+        OP(argc == 5, INVALID_ARGUMENTS);
+    } else {
+        OP(argc == 4, INVALID_ARGUMENTS);
+    }
 
     init_currency_table(&currency_table);
     init_persons(&persons);
 
     // posunut argv o 1 pre bonus
 
-    OP(person_file = fopen(argv[1], "r"), INVALID_ARGUMENTS);
+    OP(person_file = fopen(argv[1 + bonus], "r"), INVALID_ARGUMENTS);
     load_persons(&persons, person_file);
 
-    OP(currency_file = fopen(argv[2], "r"), INVALID_ARGUMENTS);
+
+    OP(currency_file = fopen(argv[2 + bonus], "r"), INVALID_ARGUMENTS);
     load_currency_table(&currency_table, currency_file);
 
-    OP(payment_file = fopen(argv[3], "r"), INVALID_ARGUMENTS);
+    OP(payment_file = fopen(argv[3 + bonus], "r"), INVALID_ARGUMENTS);
     load_payments(&persons, &currency_table, payment_file);
 
-    settle_debt(&persons, &currency_table);
+    if (bonus == 1) {
+        printf("Here will be bonus\n");
+    } else {
+        settle_debt(&persons, &currency_table);
+    }
 
     exit_success();
 }

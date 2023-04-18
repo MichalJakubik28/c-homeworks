@@ -1,37 +1,39 @@
 #include <stdio.h>
 #include <string.h>
 
-static int normalize(int number, char str[4])
-{
-    for (int i = 0; i < 4 - strlen(str); i++) {
+#include "errors.h"
+
+static int normalize(int number, char str[4], int decimals) {
+    for (size_t i = 0; i < decimals - strlen(str); i++) {
         number *= 10;
     }
     return number;
 }
 
-int decimals_to_base(int decimals)
-{
+long decimals_to_base(int decimals) {
     int base = 1;
-    while (decimals --> 0)
+    while (decimals-- > 0)
         base *= 10;
     return base;
 }
 
-int load_decimal(const char *string, int decimals)
-{
-    int base = decimals_to_base(decimals);
+long load_decimal(const char *string, int decimals) {
+    long base = decimals_to_base(decimals);
     if (!strchr(string, '.')) {
-        int result;
-        sscanf(string, "%d  ", &result);
+        long result;
+        int parsed = sscanf(string, "%ld", &result);
+        OP(parsed == 1, INVALID_NUMBER_IN_FILE);
         return result * base;
     }
 
-    int large;
+    long large;
     char small[5];
     memset(small, 0, 5);
-    sscanf(string, "%d.%4s", &large, small);
+    int parsed = sscanf(string, "%ld.%4s", &large, small);
+    OP(parsed == 2, INVALID_NUMBER_IN_FILE);
+
     int small_num;
     sscanf(small, "%d", &small_num);
 
-    return large * base + normalize(small_num, small);
+    return large * base + normalize(small_num, small, decimals);
 }

@@ -15,13 +15,11 @@ jmp_buf *get_error_point()
     return point;
 }
 
-__attribute__((noreturn))
 int error_happened(enum error_codes code)
 {
     longjmp(*point, code);
 }
 
-__attribute__((noreturn))
 void exit_success(void)
 {
     error_happened(SUCCESS);
@@ -49,6 +47,8 @@ static const char *resolve_message(enum error_codes code)
         return "default currency not set";
     case NEGATIVE_CURRENCY_RATING:
         return "negative currency rating found";
+    case PERSON_NOT_FOUND:
+        return "person not found";
     case PERSON_ALREADY_PRESENT:
         return "person already present";
     case NOT_ENOUGH_PERSONS:

@@ -1,4 +1,5 @@
 #include "persons.h"
+
 #include "big_int.h"
 #include "errors.h"
 #include "utils.h"
@@ -45,9 +46,8 @@ static void destroy_persons(void *p)
 {
     struct persons *persons = (struct persons *) p;
 
-
     for (int i = 0; i < persons->size; ++i) {
-        free(persons->persons[i].id);  // SEGFAULT here?
+        free(persons->persons[i].id); // SEGFAULT here?
         free(persons->persons[i].name);
     }
 

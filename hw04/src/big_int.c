@@ -1,10 +1,11 @@
 #include "big_int.h"
 
-#include <string.h>
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
-void subtract_unsigned(const big_int *a, const big_int *b, big_int *dest) {
+void subtract_unsigned(const big_int *a, const big_int *b, big_int *dest)
+{
     int borrow = 0;
     for (int i = BIG_INT_DIGITS - 1; i >= 0; i--) {
         int diff = a->digits[i] - b->digits[i] - borrow;
@@ -18,7 +19,8 @@ void subtract_unsigned(const big_int *a, const big_int *b, big_int *dest) {
     }
 }
 
-void add_unsigned(const big_int *a, const big_int *b, big_int *dest) {
+void add_unsigned(const big_int *a, const big_int *b, big_int *dest)
+{
     int carry = 0;
     for (int i = BIG_INT_DIGITS - 1; i >= 0; i--) {
         int sum = a->digits[i] + b->digits[i] + carry;
@@ -27,12 +29,14 @@ void add_unsigned(const big_int *a, const big_int *b, big_int *dest) {
     }
 }
 
-void big_int_init(big_int *n) {
+void big_int_init(big_int *n)
+{
     memset(n->digits, 0, sizeof(n->digits));
     n->is_positive = true;
 }
 
-void big_int_convert(big_int *dest, const long to_convert) {
+void big_int_convert(big_int *dest, const long to_convert)
+{
     char str_convert[19];
     memset(str_convert, 0, 19);
     snprintf(str_convert, 19, "%18ld", to_convert < 0 ? -to_convert : to_convert);
@@ -46,7 +50,8 @@ void big_int_convert(big_int *dest, const long to_convert) {
     }
 }
 
-void big_int_round(big_int *n) {
+void big_int_round(big_int *n)
+{
     if (n->digits[17] >= 5) {
         for (int i = 16; i >= 0; i--) {
             n->digits[i] = (n->digits[i] + 1);
@@ -59,7 +64,8 @@ void big_int_round(big_int *n) {
     }
 }
 
-void big_int_print(big_int *n) {
+void big_int_print(big_int *n)
+{
     big_int_round(n);
     if (!n->is_positive) {
         putchar('-');
@@ -83,7 +89,8 @@ void big_int_print(big_int *n) {
     }
 }
 
-void big_int_div_by_int(const big_int *n, big_int *dest, int divisor) {
+void big_int_div_by_int(const big_int *n, big_int *dest, int divisor)
+{
     if (divisor < 0) {
         dest->is_positive = !n->is_positive;
         divisor = -divisor;
@@ -96,7 +103,8 @@ void big_int_div_by_int(const big_int *n, big_int *dest, int divisor) {
     }
 }
 
-int compare_unsigned(const big_int *a, const big_int *b) {
+int compare_unsigned(const big_int *a, const big_int *b)
+{
     for (int i = 0; i < BIG_INT_DIGITS; i++) {
         if (a->digits[i] > b->digits[i]) {
             return 1;
@@ -108,7 +116,8 @@ int compare_unsigned(const big_int *a, const big_int *b) {
     return 0;
 }
 
-int big_int_cmp(const big_int *a, const big_int *b, int sign) {
+int big_int_cmp(const big_int *a, const big_int *b, int sign)
+{
     if (a->is_positive != b->is_positive) {
         return a->is_positive ? 1 : -1;
     }
@@ -116,53 +125,47 @@ int big_int_cmp(const big_int *a, const big_int *b, int sign) {
     return compare_unsigned(a, b) * sign;
 }
 
-void big_int_subtract(big_int *a, big_int *b, big_int *dest) {
+void big_int_subtract(big_int *a, big_int *b, big_int *dest)
+{
     // switch if a is smaller than b
     if (a->is_positive != b->is_positive) {
         add_unsigned(a, b, dest); // ignore sign
-    }
-    else if ((a->is_positive && big_int_cmp(a, b, 1) >= 0 )|| (!a->is_positive && big_int_cmp(a, b, 1) < 0)) {
+    } else if ((a->is_positive && big_int_cmp(a, b, 1) >= 0) || (!a->is_positive && big_int_cmp(a, b, 1) < 0)) {
         subtract_unsigned(a, b, dest);
-    }
-    else if (a->is_positive && big_int_cmp(a, b, 1) < 0) {
+    } else if (a->is_positive && big_int_cmp(a, b, 1) < 0) {
         subtract_unsigned(b, a, dest);
         dest->is_positive = false;
-    }
-    else if (!a->is_positive && big_int_cmp(a, b, 1) >= 0) {
+    } else if (!a->is_positive && big_int_cmp(a, b, 1) >= 0) {
         subtract_unsigned(a, b, dest);
         dest->is_positive = false;
-    }
-    else {
+    } else {
         assert(false);
     }
 }
 
-void big_int_add(big_int *a, big_int *b, big_int *dest) {
+void big_int_add(big_int *a, big_int *b, big_int *dest)
+{
     if (a->is_positive == b->is_positive) {
         add_unsigned(a, b, dest);
-    }
-    else if (!a->is_positive && compare_unsigned(a, b) <= 0) {
+    } else if (!a->is_positive && compare_unsigned(a, b) <= 0) {
         subtract_unsigned(b, a, dest);
         dest->is_positive = true;
-    }
-    else if (!a->is_positive && compare_unsigned(a, b) > 0) {
+    } else if (!a->is_positive && compare_unsigned(a, b) > 0) {
         subtract_unsigned(a, b, dest);
         dest->is_positive = false;
-    }
-    else if (a->is_positive && compare_unsigned(a, b) < 0) {
+    } else if (a->is_positive && compare_unsigned(a, b) < 0) {
         subtract_unsigned(b, a, dest);
         dest->is_positive = false;
-    }
-    else if (a->is_positive && compare_unsigned(a, b) >= 0) {
+    } else if (a->is_positive && compare_unsigned(a, b) >= 0) {
         subtract_unsigned(a, b, dest);
         dest->is_positive = true;
-    }
-    else {
+    } else {
         assert(false);
     }
 }
 
-bool big_int_is_zero(const big_int *n, int tolerance) {
+bool big_int_is_zero(const big_int *n, int tolerance)
+{
     for (int i = 0; i < BIG_INT_DIGITS - tolerance; i++) { // not checking last <tolerance> digits
         if (n->digits[i] != 0) {
             return false;

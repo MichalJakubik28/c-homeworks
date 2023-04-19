@@ -1,23 +1,26 @@
+#include "errors.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include "errors.h"
-
-static int normalize(int number, char str[4], int decimals) {
+static int normalize(int number, char str[4], int decimals)
+{
     for (size_t i = 0; i < decimals - strlen(str); i++) {
         number *= 10;
     }
     return number;
 }
 
-long decimals_to_base(int decimals) {
+long decimals_to_base(int decimals)
+{
     int base = 1;
     while (decimals-- > 0)
         base *= 10;
     return base;
 }
 
-long load_decimal(const char *string, int decimals) {
+long load_decimal(const char *string, int decimals)
+{
     long base = decimals_to_base(decimals);
     if (!strchr(string, '.')) {
         long result;

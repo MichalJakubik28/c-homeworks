@@ -3,7 +3,6 @@
 #include "load.h"
 #include "persons.h"
 
-
 #include <string.h>
 
 struct person *find_extreme(struct persons *persons, int sign)
@@ -94,7 +93,6 @@ int main(int argc, char **argv)
 
     OP(person_file = fopen(argv[1 + bonus], "r"), INVALID_ARGUMENTS);
     load_persons(&persons, person_file);
-
 
     OP(currency_file = fopen(argv[2 + bonus], "r"), INVALID_ARGUMENTS);
     load_currency_table(&currency_table, currency_file);

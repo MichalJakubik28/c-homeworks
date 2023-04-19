@@ -57,6 +57,14 @@ static const char *resolve_message(enum error_codes code)
         return "invalid amount in input files";
     case INVALID_ARGUMENTS:
         return "invalid arguments; use <program> <person-file> <currency-file> <payments-file>";
+    case INVALID_PERSON_ID:
+        return "invalid person ID";
+    case INVALID_CURRENCY_ID:
+        return "invalid currency ID";
+    case INVALID_AMOUNT:
+        return "invalid amount of money in transaction";
+    case INVALID_RATING:
+        return "invalid currency rating";
     default:
         sprintf(unknownError, "unknown error (%u)", code);
         return unknownError;

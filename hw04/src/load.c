@@ -5,6 +5,7 @@
 #include "persons.h"
 #include "utils.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,13 +15,54 @@ int semicolon(int letter)
     return letter == ';';
 }
 
+bool validate_amount(char *amount, bool negative_allowed)
+{
+    if (*amount == '-') {
+        if (!negative_allowed) {
+            return false;
+        }
+        amount++;
+    }
+    if (*amount == 0) {
+        return false;
+    }
+    bool dot = false;
+    while (*amount != 0) {
+        // count dots
+        if (*amount == '.') {
+            if (dot) {
+                return false;
+            }
+            dot = true;
+
+        } else if (!isdigit(*amount)) {
+            return false;
+        }
+        amount++;
+    }
+    return true;
+}
+
+bool validate_id(const char *id)
+{
+    while (*id != 0) {
+        if (!isalnum(*id)) {
+            return false;
+        }
+        id++;
+    }
+    return true;
+}
+
 void load_currency_table(struct currency_table *table, FILE *input)
 {
     stack_frame();
     char *line = NULL;
 
     if (read_error_point()) {
-        free(line);
+        if (line != NULL) {
+            free(line);
+        }
         leave();
     }
 
@@ -33,13 +75,16 @@ void load_currency_table(struct currency_table *table, FILE *input)
         char *name = trim_string(line, NULL);
         end = words_end(name);
         *end = '\0';
+        OP(validate_id(name), INVALID_CURRENCY_ID);
 
         char *rating = trim_string(end + 1, NULL);
         end = words_end(rating);
         *end = '\0';
+        OP(validate_amount(rating, false), INVALID_RATING);
 
         add_currency(table, name, load_decimal(rating, RATING_DECIMALS));
     }
+    line = NULL;
     OP(table->main_currency != NULL, DEFAULT_CURRENCY_NOT_SET);
     leave();
 }
@@ -63,12 +108,14 @@ void load_persons(struct persons *persons, FILE *input)
         char *id = trim_string(line, NULL);
         end = words_end(id);
         *end = '\0';
+        OP(validate_id(id), INVALID_PERSON_ID);
 
         char *name = trim_string(end + 1, &end);
         *end = '\0';
 
         add_person(persons, id, name);
     }
+    line = NULL;
     OP(persons->size > 1, NOT_ENOUGH_PERSONS);
     leave();
 }
@@ -100,6 +147,7 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
         char *amount = trim_string(end + 1, NULL);
         end = words_end(amount);
         *end = '\0';
+        OP(validate_amount(amount, true), INVALID_AMOUNT);
 
         char *currency = trim_string(end + 1, &end);
         *end = '\0';

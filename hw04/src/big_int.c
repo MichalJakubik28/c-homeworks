@@ -91,6 +91,7 @@ void big_int_print(big_int *n)
 
 void big_int_div_by_int(const big_int *n, big_int *dest, int divisor)
 {
+    dest->is_positive = n->is_positive;
     if (divisor < 0) {
         dest->is_positive = !n->is_positive;
         divisor = -divisor;

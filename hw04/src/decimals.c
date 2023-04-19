@@ -35,8 +35,9 @@ long load_decimal(const char *string, int decimals)
     int parsed = sscanf(string, "%ld.%4s", &large, small);
     OP(parsed == 2, INVALID_NUMBER_IN_FILE);
 
+    int sign = large < 0 ? -1 : 1;
     int small_num;
     sscanf(small, "%d", &small_num);
 
-    return large * base + normalize(small_num, small, decimals);
+    return large * base + normalize(small_num, small, decimals) * sign;
 }

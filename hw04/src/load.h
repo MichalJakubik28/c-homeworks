@@ -1,3 +1,4 @@
+#include "currency.h"
 #include "persons.h"
 
 #include <stdio.h>

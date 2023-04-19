@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 
 #ifndef UTILS_H
@@ -15,7 +16,7 @@ void object_avoid_duplicit_initialization(void *);
 
 char *copy_string(const char *str);
 char *trim_string(char *begin, char **end);
-int empty_string(char *str);
+bool empty_string(char *str);
 int char_count(const char *str, char letter);
 char *words_end(char *word);
 char *get_token(char *string, int (*condition)(int));

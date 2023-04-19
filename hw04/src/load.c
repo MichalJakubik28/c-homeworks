@@ -22,10 +22,14 @@ bool validate_amount(char *amount, bool negative_allowed)
             return false;
         }
         amount++;
+    } else if (*amount == '+') {
+        amount++;
     }
+
     if (*amount == 0) {
         return false;
     }
+
     bool dot = false;
     while (*amount != 0) {
         // count dots
@@ -68,6 +72,7 @@ void load_currency_table(struct currency_table *table, FILE *input)
 
     for (; !feof(input); free(line)) {
         line = read_line(input);
+        size_t line_length = strlen(line);
         if (empty_string(line))
             continue;
         char *end;
@@ -82,6 +87,9 @@ void load_currency_table(struct currency_table *table, FILE *input)
         *end = '\0';
         OP(validate_amount(rating, false), INVALID_RATING);
 
+        if (end + 1 <= line + line_length - 1) {
+            OP(empty_string(end + 1), INVALID_RATING);
+        }
         add_currency(table, name, load_decimal(rating, RATING_DECIMALS));
     }
     line = NULL;
@@ -103,6 +111,7 @@ void load_persons(struct persons *persons, FILE *input)
         line = read_line(input);
         if (empty_string(line))
             continue;
+        size_t line_length = strlen(line);
         char *end;
 
         char *id = trim_string(line, NULL);
@@ -110,8 +119,10 @@ void load_persons(struct persons *persons, FILE *input)
         *end = '\0';
         OP(validate_id(id), INVALID_PERSON_ID);
 
+        OP(end < line + line_length, INVALID_PERSON_NAME);
         char *name = trim_string(end + 1, &end);
         *end = '\0';
+        OP(strlen(name) > 0, INVALID_PERSON_NAME);
 
         add_person(persons, id, name);
     }

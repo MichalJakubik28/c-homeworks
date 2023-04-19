@@ -65,6 +65,8 @@ static const char *resolve_message(enum error_codes code)
         return "invalid amount of money in transaction";
     case INVALID_RATING:
         return "invalid currency rating";
+    case INVALID_PERSON_NAME:
+        return "invalid person name";
     default:
         sprintf(unknownError, "unknown error (%u)", code);
         return unknownError;
@@ -80,5 +82,5 @@ int return_code(enum error_codes code)
 
 void print_error_message(enum error_codes code)
 {
-    fprintf(stderr, "Error happened: %s", resolve_message(code));
+    fprintf(stderr, "Error happened: %s\n", resolve_message(code));
 }

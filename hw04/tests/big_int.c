@@ -235,6 +235,7 @@ TEST(rounding) {
     big_int item1;
     big_int_init(&item1);
     big_int_convert(&item1, 1999999);
+    big_int_round(&item1);
     big_int_print(&item1);
     ASSERT_FILE(stdout, "2");
 }

@@ -3,6 +3,7 @@
 #include "errors.h"
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,8 +58,11 @@ char *trim_string(char *begin, char **end)
     return begin;
 }
 
-int empty_string(char *str)
+bool empty_string(char *str)
 {
+    if (strlen(str) == 0) {
+        return true;
+    }
     char *end;
     str = trim_string(str, &end);
     return str == end;
@@ -91,6 +95,7 @@ char *read_line(FILE *input)
     int capacity = 16;
     int size = 0;
     char *buffer = (char *) malloc(capacity);
+    OP(buffer, ALLOCATION_FAILED);
     int c;
 
     while ((c = fgetc(input)) != EOF && c != '\n') {

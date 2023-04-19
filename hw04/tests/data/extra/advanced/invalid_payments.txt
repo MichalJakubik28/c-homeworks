@@ -1,1 +1,4 @@
-AA;moj TVOJ;AA -4.97 CROWN
+AA;moj           tvoj;AA            6.54            CROWN
+
+
+

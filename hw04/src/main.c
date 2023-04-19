@@ -3,6 +3,7 @@
 #include "load.h"
 #include "persons.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 struct person *find_extreme(struct persons *persons, int sign)
@@ -28,9 +29,9 @@ void settle_debt(struct persons *persons, struct currency_table *table)
         big_int_subtract(&amount, &debtor->amount, &amount);
 
         if (big_int_cmp(&amount, &creditor->amount, 1) == 1)
-            // urobi sa kopia?
             amount = creditor->amount;
-        if (big_int_is_zero(&amount, 7)) {
+        big_int_round(&amount);
+        if (big_int_is_zero(&amount, 1)) {
             return;
         }
 
@@ -107,4 +108,7 @@ int main(int argc, char **argv)
     }
 
     exit_success();
+
+    // fix for compiler warning
+    return EXIT_SUCCESS;
 }

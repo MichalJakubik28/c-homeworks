@@ -50,6 +50,13 @@ void big_int_convert(big_int *dest, const long to_convert)
     }
 }
 
+void delete_decimals(big_int *n)
+{
+    for (int i = 17; i < BIG_INT_DIGITS; i++) {
+        n->digits[i] = 0;
+    }
+}
+
 void big_int_round(big_int *n)
 {
     if (n->digits[17] >= 5) {
@@ -58,15 +65,16 @@ void big_int_round(big_int *n)
             if (n->digits[i] == 10) {
                 n->digits[i] = 0;
             } else {
+                delete_decimals(n);
                 return;
             }
         }
     }
+    delete_decimals(n);
 }
 
 void big_int_print(big_int *n)
 {
-    big_int_round(n);
     if (!n->is_positive) {
         putchar('-');
     }
@@ -131,8 +139,10 @@ void big_int_subtract(big_int *a, big_int *b, big_int *dest)
     // switch if a is smaller than b
     if (a->is_positive != b->is_positive) {
         add_unsigned(a, b, dest); // ignore sign
+        dest->is_positive = a->is_positive;
     } else if ((a->is_positive && big_int_cmp(a, b, 1) >= 0) || (!a->is_positive && big_int_cmp(a, b, 1) < 0)) {
         subtract_unsigned(a, b, dest);
+        dest->is_positive = true;
     } else if (a->is_positive && big_int_cmp(a, b, 1) < 0) {
         subtract_unsigned(b, a, dest);
         dest->is_positive = false;
@@ -148,6 +158,7 @@ void big_int_add(big_int *a, big_int *b, big_int *dest)
 {
     if (a->is_positive == b->is_positive) {
         add_unsigned(a, b, dest);
+        dest->is_positive = a->is_positive;
     } else if (!a->is_positive && compare_unsigned(a, b) <= 0) {
         subtract_unsigned(b, a, dest);
         dest->is_positive = true;

@@ -36,7 +36,13 @@ void settle_debt(struct persons *persons, struct currency_table *table)
         }
 
         big_int_add(&debtor->amount, &amount, &debtor->amount);
+        if (big_int_is_zero(&debtor->amount, 8) && debtor->amount.digits[17] == 5) {
+            debtor->amount.digits[17] = 0;
+        }
         big_int_subtract(&creditor->amount, &amount, &creditor->amount);
+        if (big_int_is_zero(&creditor->amount, 8) && creditor->amount.digits[17] == 5) {
+            creditor->amount.digits[17] = 0;
+        }
 
         printf("%s (%s) -> %s (%s): ", debtor->name, debtor->id, creditor->name, creditor->id);
         big_int_print(&amount);

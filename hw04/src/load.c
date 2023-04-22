@@ -82,6 +82,7 @@ void load_currency_table(struct currency_table *table, FILE *input)
         *end = '\0';
         OP(validate_id(name), INVALID_CURRENCY_ID);
 
+        OP(end < line + line_length, INVALID_RATING);
         char *rating = trim_string(end + 1, NULL);
         end = words_end(rating);
         *end = '\0';

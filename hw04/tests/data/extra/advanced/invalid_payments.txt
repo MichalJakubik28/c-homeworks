@@ -1,4 +1,1 @@
-AA;moj           tvoj;AA            6.54            CROWN
-
-
-
+moj           moj;AA;moj;moj           6.33           CROWN

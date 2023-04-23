@@ -49,7 +49,7 @@ enum error_codes
 
 void print_error_message(enum error_codes code);
 int return_code(enum error_codes code);
-void set_error_point(jmp_buf *point);
+void set_error_point(jmp_buf *current);
 jmp_buf *get_error_point(void);
 int error_happened(enum error_codes code);
 void exit_success(void);

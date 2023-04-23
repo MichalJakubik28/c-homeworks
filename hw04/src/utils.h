@@ -18,7 +18,7 @@ char *copy_string(const char *str);
 char *trim_string(char *begin, char **end);
 bool empty_string(char *str);
 int char_count(const char *str, char letter);
-char *words_end(char *word);
+char *words_end(char *string);
 char *get_token(char *string, int (*condition)(int));
 char *read_line(FILE *input);
 

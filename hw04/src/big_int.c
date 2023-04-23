@@ -86,10 +86,9 @@ void big_int_print(big_int *n)
         if (index == 15) {
             if (n->digits[15] == 0 && n->digits[16] == 0) {
                 return;
-            } else {
-                putchar('.');
-                putchar(n->digits[index] + 48);
             }
+            putchar('.');
+            putchar(n->digits[index] + 48);
         } else {
             putchar(n->digits[index] + 48);
         }

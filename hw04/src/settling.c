@@ -59,11 +59,11 @@ int combinations_count(int n, int k)
 {
     if (k > n) {
         return 0;
-    } else if (k == 0 || k == n) {
-        return 1;
-    } else {
-        return combinations_count(n - 1, k - 1) + combinations_count(n - 1, k);
     }
+    if (k == 0 || k == n) {
+        return 1;
+    }
+    return combinations_count(n - 1, k - 1) + combinations_count(n - 1, k);
 }
 
 void generate_combinations(const int subset_size, const int *persons_count, int result[], int curr_number, int curr_index, int curr_combination[], int *array_index)

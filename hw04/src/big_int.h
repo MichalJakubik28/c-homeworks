@@ -13,7 +13,7 @@ typedef struct
 
 void big_int_round(big_int *n);
 void big_int_init(big_int *n);
-void big_int_convert(big_int *n, long to_convert);
+void big_int_convert(big_int *dest, long to_convert);
 void big_int_add(big_int *a, big_int *b, big_int *dest);
 void big_int_print(big_int *n);
 void big_int_div_by_int(const big_int *n, big_int *dest, int d);

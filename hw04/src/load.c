@@ -146,21 +146,25 @@ void load_payments(struct persons *persons, struct currency_table *table, FILE *
         line = read_line(input);
         if (empty_string(line))
             continue;
+        size_t line_length = strlen(line);
         char *end;
 
         char *from = trim_string(line, NULL);
         end = words_end(from);
         *end = '\0';
 
+        OP(end < line + line_length, INVALID_PERSON_NAME);
         char *to = trim_string(end + 1, NULL);
         end = words_end(to);
         *end = '\0';
 
+        OP(end < line + line_length, INVALID_AMOUNT);
         char *amount = trim_string(end + 1, NULL);
         end = words_end(amount);
         *end = '\0';
         OP(validate_amount(amount, true), INVALID_AMOUNT);
 
+        OP(end < line + line_length, INVALID_CURRENCY_ID);
         char *currency = trim_string(end + 1, &end);
         *end = '\0';
 

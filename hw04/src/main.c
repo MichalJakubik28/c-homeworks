@@ -50,8 +50,6 @@ int main(int argc, char **argv)
     init_currency_table(&currency_table);
     init_persons(&persons, 16);
 
-    // posunut argv o 1 pre bonus
-
     OP(person_file = fopen(argv[1 + bonus], "r"), INVALID_ARGUMENTS);
     load_persons(&persons, person_file);
 

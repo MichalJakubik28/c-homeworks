@@ -59,6 +59,7 @@ TEST(combinations) {
                 printf("%d", combinations[i]);
             }
             ASSERT_FILE(stdout, "012013014023024034123124134234");
+            free(combinations);
         }
 
     SUBTEST(foursome from six) {
@@ -76,5 +77,6 @@ TEST(combinations) {
                 printf("%d", combinations[i]);
             }
             ASSERT_FILE(stdout, "012301240125013401350145023402350245034512341235124513452345");
+            free(combinations);
         }
 }

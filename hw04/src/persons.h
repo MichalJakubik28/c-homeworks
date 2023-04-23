@@ -19,7 +19,7 @@ struct persons
     int capacity;
 };
 
-void init_persons(struct persons *persons);
+void init_persons(struct persons *persons, int initial_capacity);
 void add_person(struct persons *persons, const char *id, const char *name);
 struct person *find_person(const struct persons *persons, const char *id);
 

@@ -19,7 +19,7 @@ static void validate_person(struct persons *persons, const char *id, const char 
 TEST(persons_init) {
     struct persons persons;
     memset(&persons, 0, sizeof(persons));
-    init_persons(&persons);
+    init_persons(&persons, 16);
 
     CHECK(persons.size == 0);
     CHECK(persons.capacity == 16);
@@ -32,7 +32,7 @@ TEST(persons_add_find) {
     enum error_codes expected_code = SUCCESS;
     struct persons persons;
     memset(&persons, 0, sizeof(persons));
-    init_persons(&persons);
+    init_persons(&persons, 16);
 
     stack_top_frame();
     if ((error_code = read_error_point())) {

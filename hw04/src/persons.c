@@ -47,20 +47,19 @@ static void destroy_persons(void *p)
     struct persons *persons = (struct persons *) p;
 
     for (int i = 0; i < persons->size; ++i) {
-        free(persons->persons[i].id); // SEGFAULT here?
+        free(persons->persons[i].id);
         free(persons->persons[i].name);
     }
 
     free(persons->persons);
 }
 
-void init_persons(struct persons *persons)
+void init_persons(struct persons *persons, int initial_capacity)
 {
     object_avoid_duplicit_initialization(persons);
-    persons->capacity = 16;
+    persons->capacity = initial_capacity;
     persons->size = 0;
     OP(persons->persons = (struct person *) malloc(sizeof(struct person) * persons->capacity), ALLOCATION_FAILED);
-    // netreba & ?
     object_set_destructor(persons, destroy_persons);
 }
 

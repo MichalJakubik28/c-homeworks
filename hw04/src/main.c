@@ -2,53 +2,10 @@
 #include "errors.h"
 #include "load.h"
 #include "persons.h"
+#include "settling.h"
 
 #include <stdlib.h>
 #include <string.h>
-
-struct person *find_extreme(struct persons *persons, int sign)
-{
-    if (!persons->size)
-        return NULL;
-    struct person *extreme = &persons->persons[0];
-    for (int i = 1; i < persons->size; ++i) {
-        if (big_int_cmp(&persons->persons[i].amount, &extreme->amount, sign) == sign)
-            extreme = &persons->persons[i];
-    }
-    return extreme;
-}
-
-void settle_debt(struct persons *persons, struct currency_table *table)
-{
-    for (int i = 0; i < persons->size; i++) {
-        struct person *debtor = find_extreme(persons, -1);
-        struct person *creditor = find_extreme(persons, 1);
-
-        big_int amount;
-        big_int_init(&amount);
-        big_int_subtract(&amount, &debtor->amount, &amount);
-
-        if (big_int_cmp(&amount, &creditor->amount, 1) == 1)
-            amount = creditor->amount;
-        big_int_round(&amount);
-        if (big_int_is_zero(&amount, 1)) {
-            return;
-        }
-
-        big_int_add(&debtor->amount, &amount, &debtor->amount);
-        if (big_int_is_zero(&debtor->amount, 8) && debtor->amount.digits[17] == 5) {
-            debtor->amount.digits[17] = 0;
-        }
-        big_int_subtract(&creditor->amount, &amount, &creditor->amount);
-        if (big_int_is_zero(&creditor->amount, 8) && creditor->amount.digits[17] == 5) {
-            creditor->amount.digits[17] = 0;
-        }
-
-        printf("%s (%s) -> %s (%s): ", debtor->name, debtor->id, creditor->name, creditor->id);
-        big_int_print(&amount);
-        printf(" %s\n", table->main_currency);
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -63,12 +20,9 @@ int main(int argc, char **argv)
     memset(&persons, 0, sizeof(persons));
 
     if ((error_code = read_error_point())) {
-        // nie je ta funkcia prazdna?
-        // edit: je, ale to nevadi
         object_destroy(&currency_table);
         object_destroy(&persons);
 
-        // skontroluje ci file nie je null a zavrie ho
         if (person_file != NULL) {
             fclose(person_file);
         }
@@ -94,7 +48,7 @@ int main(int argc, char **argv)
     }
 
     init_currency_table(&currency_table);
-    init_persons(&persons);
+    init_persons(&persons, 16);
 
     // posunut argv o 1 pre bonus
 
@@ -108,7 +62,7 @@ int main(int argc, char **argv)
     load_payments(&persons, &currency_table, payment_file);
 
     if (bonus == 1) {
-        printf("Here will be bonus\n");
+        settle_effectively(&persons, &currency_table);
     } else {
         settle_debt(&persons, &currency_table);
     }

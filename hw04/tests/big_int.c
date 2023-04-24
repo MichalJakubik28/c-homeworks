@@ -172,6 +172,14 @@ TEST(big_int_subtract) {
             big_int_print(&item1);
             ASSERT_FILE(stdout, "-111.11");
         }
+
+    SUBTEST(subtract_number5) {
+            big_int_convert(&item1, -123000000);
+            big_int_convert(&to_subtract, -456000000);
+            big_int_subtract(&item1, &to_subtract, &item1);
+            big_int_print(&item1);
+            ASSERT_FILE(stdout, "333");
+        }
 }
 
 TEST(big_int_divide) {

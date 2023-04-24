@@ -139,15 +139,18 @@ void big_int_subtract(big_int *a, big_int *b, big_int *dest)
     if (a->is_positive != b->is_positive) {
         add_unsigned(a, b, dest); // ignore sign
         dest->is_positive = a->is_positive;
-    } else if ((a->is_positive && big_int_cmp(a, b, 1) >= 0) || (!a->is_positive && big_int_cmp(a, b, 1) < 0)) {
+    } else if (a->is_positive && compare_unsigned(a, b) >= 0) {
         subtract_unsigned(a, b, dest);
         dest->is_positive = true;
-    } else if (a->is_positive && big_int_cmp(a, b, 1) < 0) {
+    } else if (a->is_positive && compare_unsigned(a, b) < 0) {
         subtract_unsigned(b, a, dest);
         dest->is_positive = false;
-    } else if (!a->is_positive && big_int_cmp(a, b, 1) >= 0) {
+    } else if (!a->is_positive && compare_unsigned(a, b) > 0) {
         subtract_unsigned(a, b, dest);
         dest->is_positive = false;
+    } else if ((!a->is_positive && compare_unsigned(a, b) <= 0)) {
+        subtract_unsigned(b, a, dest);
+        dest->is_positive = true;
     } else {
         assert(false);
     }

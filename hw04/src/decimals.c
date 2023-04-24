@@ -36,6 +36,9 @@ long load_decimal(const char *string, int decimals)
     OP(parsed == 2, INVALID_NUMBER_IN_FILE);
 
     int sign = large < 0 ? -1 : 1;
+    if (large == 0 && string[0] == '-') {
+        sign = -1;
+    }
     int small_num;
     sscanf(small, "%d", &small_num);
 

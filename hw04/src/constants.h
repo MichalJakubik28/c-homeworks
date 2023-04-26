@@ -1,18 +1,14 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#ifndef RATING_DECIMALS_OPT
-#define RATING_DECIMALS_OPT 4
-#endif
-
-#ifndef PAYMENT_DECIMALS_OPT
-#define PAYMENT_DECIMALS_OPT 2
-#endif
-
+/**
+ * @brief Amounts of zeros required to convert
+ * rating and payment amounts to whole numbers.
+ */
 enum constants
 {
-    RATING_DECIMALS = RATING_DECIMALS_OPT,
-    PAYMENT_DECIMALS = PAYMENT_DECIMALS_OPT,
+    RATING_DECIMALS = 4,
+    PAYMENT_DECIMALS = 2,
 };
 
 #endif

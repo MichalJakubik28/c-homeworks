@@ -88,6 +88,7 @@ void generate_combinations(const int subset_size, const int *persons_count, int 
 
 void settle_effectively(struct persons *persons, struct currency_table *table)
 {
+    // works similarly to the master's thesis
     if (persons->size > 19) {
         settle_debt(persons, table);
     }
@@ -125,6 +126,7 @@ void settle_effectively(struct persons *persons, struct currency_table *table)
             big_int sum;
             big_int_init(&sum);
 
+            // create structure with chosen subgroup
             for (int j = 0; j < k; j++, array_index++) {
                 // skip combinations with persons that are already settled
                 if (settled[combinations[array_index]]) {

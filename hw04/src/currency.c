@@ -60,7 +60,6 @@ void init_currency_table(struct currency_table *table)
     table->main_currency = 0;
     table->size = 0;
     OP(table->currencies = (struct currency *) malloc(sizeof(struct currency) * table->capacity), ALLOCATION_FAILED);
-    // netreba & ?
     object_set_destructor(table, destroy_currency_table);
 }
 

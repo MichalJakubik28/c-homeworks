@@ -12,7 +12,7 @@ TEST(copy_string) {
     const char *value = "exotic value";
     char *copy = copy_string(value);
 
-    CHECK(copy == value);
+    CHECK(*copy == *value);
 
     free(copy);
 }
@@ -80,5 +80,5 @@ TEST(get_token) {
     char string[] = "*-+123456";
     char *token = get_token(string, isdigit);
     CHECK(*token == '1');
-    CHECK(string + 4 == token);
+    CHECK(string + 3 == token);
 }

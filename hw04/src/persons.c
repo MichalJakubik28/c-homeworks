@@ -1,5 +1,6 @@
 #include "persons.h"
 
+#include "big_int.h"
 #include "errors.h"
 #include "utils.h"
 
@@ -38,26 +39,25 @@ static int person_cmp(const void *_id, const void *_person)
 
 struct person *find_person(const struct persons *persons, const char *id)
 {
-    return (struct person *) bsearch(id, persons->size, persons->persons, sizeof(struct person), person_cmp);
+    return (struct person *) bsearch(id, persons->persons, persons->size, sizeof(struct person), person_cmp);
 }
 
 static void destroy_persons(void *p)
 {
     struct persons *persons = (struct persons *) p;
 
-    /*
-    for (int i = 0; i != persons->size; ++i) {
-        free(persons->persons[i].id);  // SEGFAULT here?
+    for (int i = 0; i < persons->size; ++i) {
+        free(persons->persons[i].id);
         free(persons->persons[i].name);
     }
-    */
+
     free(persons->persons);
 }
 
-void init_persons(struct persons *persons)
+void init_persons(struct persons *persons, int initial_capacity)
 {
     object_avoid_duplicit_initialization(persons);
-    persons->capacity = 16;
+    persons->capacity = initial_capacity;
     persons->size = 0;
     OP(persons->persons = (struct person *) malloc(sizeof(struct person) * persons->capacity), ALLOCATION_FAILED);
     object_set_destructor(persons, destroy_persons);
@@ -76,9 +76,11 @@ void add_person(struct persons *persons, const char *id, const char *name)
 
     struct person *p = &persons->persons[persons->size];
     memset(p, 0, sizeof(*p));
-    p->id = id;
-    p->name = name;
-    ++persons->size;
+    p->id = copy_string(id);
+    p->name = copy_string(name);
+    big_int_init(&p->amount);
+
+    persons->size++;
 
     ensort(persons);
 }

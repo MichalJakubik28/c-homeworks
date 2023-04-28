@@ -1,36 +1,46 @@
+#include "errors.h"
+
 #include <stdio.h>
 #include <string.h>
 
-static int normalize(int number, int upper)
+static int normalize(int number, char str[4], int decimals)
 {
-    int lower = upper / 10;
-    while (number < lower)
+    for (size_t i = 0; i < decimals - strlen(str); i++) {
         number *= 10;
-    while (number > upper)
-        number /= 10;
+    }
     return number;
 }
 
-int decimals_to_base(int decimals)
+long decimals_to_base(int decimals)
 {
     int base = 1;
-    while (decimals --> 0)
+    while (decimals-- > 0)
         base *= 10;
     return base;
 }
 
-int load_decimal(const char *string, int decimals)
+long load_decimal(const char *string, int decimals)
 {
-    int base = decimals_to_base(decimals);
+    long base = decimals_to_base(decimals);
     if (!strchr(string, '.')) {
-        int result;
-        sscanf(string, "%i", &result);
+        long result;
+        int parsed = sscanf(string, "%ld", &result);
+        OP(parsed == 1, INVALID_NUMBER_IN_FILE);
         return result * base;
     }
 
-    int large;
-    int small;
-    sscanf(string, "%i.%i", &large, &small);
+    long large;
+    char small[5];
+    memset(small, 0, 5);
+    int parsed = sscanf(string, "%ld.%4s", &large, small);
+    OP(parsed == 2, INVALID_NUMBER_IN_FILE);
 
-    return large * base + normalize(small, base);
+    int sign = large < 0 ? -1 : 1;
+    if (large == 0 && string[0] == '-') {
+        sign = -1;
+    }
+    int small_num;
+    sscanf(small, "%d", &small_num);
+
+    return large * base + normalize(small_num, small, decimals) * sign;
 }

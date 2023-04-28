@@ -11,7 +11,7 @@
 static void swap(struct currency *lhs, struct currency *rhs)
 {
     char *name = lhs->name;
-    int rating = lhs->rating;
+    long rating = lhs->rating;
 
     lhs->name = rhs->name;
     lhs->rating = rhs->rating;
@@ -63,7 +63,7 @@ void init_currency_table(struct currency_table *table)
     object_set_destructor(table, destroy_currency_table);
 }
 
-void add_currency(struct currency_table *table, const char *name, int rating)
+void add_currency(struct currency_table *table, const char *name, long rating)
 {
     if (!rating && table->main_currency)
         error_happened(CURRENCY_DUPLICATE_MAIN);
@@ -78,18 +78,21 @@ void add_currency(struct currency_table *table, const char *name, int rating)
     }
 
     table->currencies[table->size].name = copy_string(name);
+    OP(rating >= 0, NEGATIVE_CURRENCY_RATING);
     table->currencies[table->size].rating = rating;
 
     if (!rating)
         table->main_currency = table->currencies[table->size].name;
     ++table->size;
+
+    ensort(table);
 }
 
-int convert_currency(struct currency_table *table, int amount, const char *currency)
+long convert_currency(struct currency_table *table, long amount, const char *currency)
 {
     struct currency *found;
     OP(found = find_currency(table, currency), CURRENCY_NOT_FOUND);
     if (!found->rating)
-        return amount;
-    return amount * found->rating / decimals_to_base(RATING_DECIMALS);
+        return amount * 10000;
+    return amount * found->rating;
 }

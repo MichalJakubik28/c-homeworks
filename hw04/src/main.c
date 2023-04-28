@@ -2,37 +2,10 @@
 #include "errors.h"
 #include "load.h"
 #include "persons.h"
-#include "structures.h"
+#include "settling.h"
 
+#include <stdlib.h>
 #include <string.h>
-
-struct person *find_extreme(struct persons *persons, int sign)
-{
-    if (!persons->size)
-        return NULL;
-    struct person *extreme = &persons->persons[0];
-    for (int i = 1; i < persons->size; ++i) {
-        if (persons->persons[i].amount * sign > extreme->amount)
-            extreme = &persons->persons[i];
-    }
-    return extreme;
-}
-
-void settle_debt(struct persons *persons)
-{
-    while (1) {
-        struct person *debtor = find_extreme(persons, -1);
-        struct person *creditor = find_extreme(persons, 1);
-
-        int amount = -debtor->amount;
-        if (amount > creditor->amount)
-            amount = creditor->amount;
-
-        debtor->amount += amount;
-        creditor->amount -= amount;
-        printf("%s -> %s %d\n", debtor->id, creditor->id, amount);
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -49,30 +22,51 @@ int main(int argc, char **argv)
     if ((error_code = read_error_point())) {
         object_destroy(&currency_table);
         object_destroy(&persons);
-        person_file &&fclose(person_file);
-        currency_file &&fclose(currency_file);
-        payment_file &&fclose(payment_file);
+
+        if (person_file != NULL) {
+            fclose(person_file);
+        }
+        if (currency_file != NULL) {
+            fclose(currency_file);
+        }
+        if (payment_file != NULL) {
+            fclose(payment_file);
+        }
 
         if (error_code != SUCCESS)
             print_error_message(error_code);
 
         return return_code(error_code);
     }
-    OP(argc == 3, INVALID_ARGUMENTS);
+
+    OP(argc >= 4, INVALID_ARGUMENTS);
+    int bonus = strcmp(argv[1], "--bonus") == 0 ? 1 : 0;
+    if (bonus == 1) {
+        OP(argc == 5, INVALID_ARGUMENTS);
+    } else {
+        OP(argc == 4, INVALID_ARGUMENTS);
+    }
 
     init_currency_table(&currency_table);
-    init_persons(&persons);
+    init_persons(&persons, 16);
 
-    person_file = fopen(argv[1], "r");
+    OP(person_file = fopen(argv[1 + bonus], "r"), INVALID_ARGUMENTS);
     load_persons(&persons, person_file);
 
-    currency_file = fopen(argv[2], "r");
+    OP(currency_file = fopen(argv[2 + bonus], "r"), INVALID_ARGUMENTS);
     load_currency_table(&currency_table, currency_file);
 
-    payment_file = fopen(argv[3], "r");
+    OP(payment_file = fopen(argv[3 + bonus], "r"), INVALID_ARGUMENTS);
     load_payments(&persons, &currency_table, payment_file);
 
-    settle_debt(&persons);
+    if (bonus == 1) {
+        settle_effectively(&persons, &currency_table);
+    } else {
+        settle_debt(&persons, &currency_table);
+    }
 
     exit_success();
+
+    // fix for compiler warning
+    return EXIT_SUCCESS;
 }

@@ -1,6 +1,7 @@
 #include "errors.h"
 
 #include <stdio.h>
+#include <string.h>
 
 static jmp_buf *point;
 
@@ -14,14 +15,12 @@ jmp_buf *get_error_point()
     return point;
 }
 
-__attribute__((noreturn))
 int error_happened(enum error_codes code)
 {
     longjmp(*point, code);
 }
 
-__attribute__((noreturn))
-void exit_success()
+void exit_success(void)
 {
     error_happened(SUCCESS);
 }
@@ -29,8 +28,9 @@ void exit_success()
 static const char *resolve_message(enum error_codes code)
 {
     static char unknownError[128];
+    memset(unknownError, 0, 128);
     switch (code) {
-    case INITAL_PASS:
+    case INITIAL_PASS:
     case SUCCESS:
         return "OK";
     case DUPLICIT_INITIALIZATION:
@@ -43,10 +43,30 @@ static const char *resolve_message(enum error_codes code)
         return "duplicated main currency";
     case CURRENCY_NOT_FOUND:
         return "currency not found";
+    case DEFAULT_CURRENCY_NOT_SET:
+        return "default currency not set";
+    case NEGATIVE_CURRENCY_RATING:
+        return "negative currency rating found";
+    case PERSON_NOT_FOUND:
+        return "person not found";
     case PERSON_ALREADY_PRESENT:
         return "person already present";
+    case NOT_ENOUGH_PERSONS:
+        return "not enough persons in input file";
+    case INVALID_NUMBER_IN_FILE:
+        return "invalid amount in input files";
     case INVALID_ARGUMENTS:
         return "invalid arguments; use <program> <person-file> <currency-file> <payments-file>";
+    case INVALID_PERSON_ID:
+        return "invalid person ID";
+    case INVALID_CURRENCY_ID:
+        return "invalid currency ID";
+    case INVALID_AMOUNT:
+        return "invalid amount of money in transaction";
+    case INVALID_RATING:
+        return "invalid currency rating";
+    case INVALID_PERSON_NAME:
+        return "invalid person name";
     default:
         sprintf(unknownError, "unknown error (%u)", code);
         return unknownError;
@@ -62,5 +82,5 @@ int return_code(enum error_codes code)
 
 void print_error_message(enum error_codes code)
 {
-    fprintf(stderr, "Error happened: %s", resolve_message(code));
+    fprintf(stderr, "Error happened: %s\n", resolve_message(code));
 }

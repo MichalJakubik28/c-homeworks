@@ -7,7 +7,7 @@
 struct currency
 {
     char *name;
-    int rating;
+    long rating;
 };
 
 struct currency_table
@@ -20,7 +20,7 @@ struct currency_table
 };
 
 void init_currency_table(struct currency_table *table);
-void add_currency(struct currency_table *table, const char *name, int rating);
-int convert_currency(struct currency_table *table, int amount, const char *currency);
+void add_currency(struct currency_table *table, const char *name, long rating);
+long convert_currency(struct currency_table *table, long amount, const char *currency);
 
 #endif

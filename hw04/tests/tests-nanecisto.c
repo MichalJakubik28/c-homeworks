@@ -2,16 +2,16 @@
 #include "libs/utils.h"
 #include "libs/mainwrap.h"
 
-#define PERSONS_SIMPLEST "tests/data/nanecisto/persons_simplest.txt" 
+#define PERSONS_SIMPLEST "tests/data/nanecisto/persons_simplest.txt"
 #define CURRENCIES_SIMPLEST "tests/data/nanecisto/currencies_simplest.txt"
 #define PAYMENTS_SIMPLEST "tests/data/nanecisto/payments_simplest.txt"
 
 #define PAYMENTS_NO_SETTLE "tests/data/nanecisto/payments_noSettle.txt"
 
-#define PERSONS_DUPE_CURR "tests/data/nanecisto/persons_dupeCurrency.txt" 
+#define PERSONS_DUPE_CURR "tests/data/nanecisto/persons_dupeCurrency.txt"
 #define CURRENCIES_DUPE_CURR "tests/data/nanecisto/currencies_dupeCurrency.txt"
 
-#define PERSONS_DUPE_PERSON "tests/data/nanecisto/persons_dupePerson.txt" 
+#define PERSONS_DUPE_PERSON "tests/data/nanecisto/persons_dupePerson.txt"
 #define CURRENCIES_DUPE_PERSON "tests/data/nanecisto/currencies_dupePerson.txt"
 #define PAYMENTS_DUPE "tests/data/nanecisto/payments_dupe.txt"
 

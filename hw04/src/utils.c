@@ -3,6 +3,7 @@
 #include "errors.h"
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,9 @@ void object_destroy(void *o)
 {
     struct object *object = (struct object *) o;
 
-    object->destruct && (object->destruct(o), 1);
+    if (object->destruct != NULL) {
+        object->destruct(o);
+    }
 }
 
 void object_set_destructor(void *o, void (*destructor)(void *))
@@ -33,7 +36,7 @@ char *copy_string(const char *str)
 {
     char *copy;
     OP(copy = (char *) malloc(strlen(str) + 1), ALLOCATION_FAILED);
-    strcpy(copy, str);
+    strncpy(copy, str, strlen(str) + 1);
     return copy;
 }
 
@@ -55,8 +58,11 @@ char *trim_string(char *begin, char **end)
     return begin;
 }
 
-int empty_string(char *str)
+bool empty_string(char *str)
 {
+    if (strlen(str) == 0) {
+        return true;
+    }
     char *end;
     str = trim_string(str, &end);
     return str == end;
@@ -89,6 +95,7 @@ char *read_line(FILE *input)
     int capacity = 16;
     int size = 0;
     char *buffer = (char *) malloc(capacity);
+    OP(buffer, ALLOCATION_FAILED);
     int c;
 
     while ((c = fgetc(input)) != EOF && c != '\n') {
@@ -101,7 +108,17 @@ char *read_line(FILE *input)
             }
             buffer = tmp;
         }
-        buffer[size++] = c;
+        buffer[size] = (char) c;
+        size++;
+    }
+    if (size == capacity) {
+        capacity++;
+        char *tmp = (char *) realloc(buffer, capacity);
+        if (!tmp) {
+            free(buffer);
+            error_happened(ALLOCATION_FAILED);
+        }
+        buffer = tmp;
     }
     buffer[size] = '\0';
     return buffer;

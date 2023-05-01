@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#define INPUT_OK 0
 #define INPUT_ERROR (-1)
 #define LISTING 0
 #define FILTER 1

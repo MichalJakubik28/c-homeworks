@@ -6,6 +6,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+int check_option(int argc, const bool *contradictions, bool has_parameter, int *index, bool *current)
+{
+    for (int i = 0; i < 5; i++) {
+        if (contradictions[i]) {
+            return INPUT_ERROR;
+        }
+    }
+
+    if (has_parameter) {
+        if (*index == argc - 3) {
+            return INPUT_ERROR;
+        }
+        *index = *index + 1;
+    }
+
+    *current = true;
+
+    return INPUT_OK;
+}
+
 int decide_mode(int argc, char *argv[])
 {
     if (argc < 3) {
@@ -19,63 +39,36 @@ int decide_mode(int argc, char *argv[])
     bool g = false;
 
     for (int i = 1; i < argc - 2; i++) {
+        bool contradictions[5] = { t, s, g, 0, 0 };
         if (strcmp(argv[i], "-t") == 0) {
-            if (s || t || g) {
+            if (check_option(argc, contradictions, true, &i, &t) == INPUT_ERROR) {
                 return INPUT_ERROR;
             }
-            if (i == argc - 3) {
+        } else if (strcmp(argv[i], "-c") == 0) {
+            contradictions[0] = c;
+            if (check_option(argc, contradictions, true, &i, &c) == INPUT_ERROR) {
                 return INPUT_ERROR;
             }
-
-            t = true;
-            i++;
-        }
-
-        else if (strcmp(argv[i], "-c") == 0) {
-            if (s || c || g) {
+        } else if (strcmp(argv[i], "-p") == 0) {
+            contradictions[0] = p;
+            if (check_option(argc, contradictions, true, &i, &p) == INPUT_ERROR) {
                 return INPUT_ERROR;
             }
-            if (i == argc - 3) {
+        } else if (strcmp(argv[i], "-g") == 0) {
+            contradictions[0] = c;
+            contradictions[3] = t;
+            contradictions[4] = p;
+            if (check_option(argc, contradictions, true, &i, &g) == INPUT_ERROR) {
                 return INPUT_ERROR;
             }
-
-            c = true;
-            i++;
-        }
-
-        else if (strcmp(argv[i], "-p") == 0) {
-            if (s || p || g) {
+        } else if (strcmp(argv[i], "-s") == 0) {
+            contradictions[0] = c;
+            contradictions[3] = t;
+            contradictions[4] = p;
+            if (check_option(argc, contradictions, false, &i, &s) == INPUT_ERROR) {
                 return INPUT_ERROR;
             }
-            if (i == argc - 3) {
-                return INPUT_ERROR;
-            }
-
-            p = true;
-            i++;
-        }
-
-        else if (strcmp(argv[i], "-g") == 0) {
-            if (s || c || t || p || g) {
-                return -1;
-            }
-            if (i == argc - 3) {
-                return INPUT_ERROR;
-            }
-
-            g = true;
-            i++;
-        }
-
-        else if (strcmp(argv[i], "-s") == 0) {
-            if (s || c || t || p || g) {
-                return INPUT_ERROR;
-            }
-
-            s = true;
-        }
-
-        else {
+        } else {
             return INPUT_ERROR;
         }
     }
@@ -146,15 +139,6 @@ int validate_accessibility(int argc, char *argv[], bool *public)
 void add_to_types(enum waste_types input, bool *types)
 {
     types[input - 1] = true;
-    //    for (int i = 0; i < 6; i++) {
-    //        if (types[i] == input) {
-    //            return;
-    //        }
-    //        if (types[i] == 0) {
-    //            types[i] = input;
-    //            return;
-    //        }
-    //    }
 }
 
 bool parse_types(char *input, bool *types)

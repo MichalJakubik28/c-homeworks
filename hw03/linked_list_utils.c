@@ -6,6 +6,8 @@
 #include <math.h>
 #include <stdbool.h>
 
+#define DOUBLE_TOLERANCE 0.00000000000001
+
 void list_init(llist *list)
 {
     assert(list != NULL);
@@ -326,7 +328,7 @@ void sn_list_insert(sn_list_t *list, sn_node_t *node)
 
 bool container_in_site(container_t *container1, s_node_t *site_node)
 {
-    return fabs(container1->x - site_node->site->x) <= 0.00000000000001 && fabs(container1->y - site_node->site->y) <= 0.00000000000001;
+    return fabs(container1->x - site_node->site->x) <= DOUBLE_TOLERANCE && fabs(container1->y - site_node->site->y) <= DOUBLE_TOLERANCE;
 }
 
 s_node_t *find_site(s_list_t *sites, container_t *container)

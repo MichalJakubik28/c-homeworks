@@ -56,21 +56,12 @@ bool parse_container_x(const char *x, container_t *container)
 
 bool parse_container_y(const char *y, container_t *container)
 {
-    if (y[0] == 0) {
+    double former_x = container->x;
+    if (!parse_container_x(y, container)) {
         return false;
     }
-
-    char *dot = strchr(y, '.');
-    if (dot != NULL && (y + strlen(y) - dot - 1 > 15)) {
-        return false;
-    }
-
-    char *unparsed;
-    double double_y = strtod(y, &unparsed);
-    if (unparsed[0] != 0) {
-        return false;
-    }
-    container->y = double_y;
+    container->y = container->x;
+    container->x = former_x;
     return true;
 }
 
@@ -132,14 +123,12 @@ bool parse_container_name(const char *name, container_t *container)
 
 bool parse_container_address(const char *address, container_t *container)
 {
-    size_t length = strlen(address);
-    char *parsed_address = calloc(length + 1, sizeof(char));
-    if (parsed_address == NULL) {
+    char *former_name = container->name;
+    if (!parse_container_name(address, container)) {
         return false;
     }
-    strncpy(parsed_address, address, length);
-    container->street = parsed_address;
-
+    container->street = container->name;
+    container->name = former_name;
     return true;
 }
 

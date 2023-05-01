@@ -1,22 +1,193 @@
+#include "container_loading.h"
+#include "data_source.h"
+#include "dijkstra.h"
+#include "input_handling.h"
+#include "linked_list_utils.h"
+#include "paths_loading.h"
+#include "printers.h"
+#include "sites_processing.h"
+
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-// TODO: [Optional] Think about an appropriate division of the solution into files.
-//                  e.g. Move data loading and validating to another .c file.
-
-#include "data_source.h" // TODO: Read the content of this file.
+bool assess_filter_validation(int return_code, bool *filters, int index);
+int filter_containers(int argc, char *argv[], c_list_t *containers);
+s_list_t *load_containers_and_sites(c_list_t *containers);
+int shortest_path(char *argv[], c_list_t *containers, s_list_t *sites);
+c_list_t *copy_data(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
-    // TODO: Read and validate options.
+    // decide on mode based on command line switches
+    int mode = decide_mode(argc, argv);
 
-    // This is only a demo, you should probably move the following line somewhere else.
-    init_data_source("path/to/containers/file.csv", "path/to/paths/file.csv");
+    if (mode == INPUT_ERROR) {
+        fprintf(stderr, "Could not parse input - invalid or not enough arguments\n");
+        return EXIT_FAILURE;
+    }
 
-    // TODO: Save data to your own structures.
+    c_list_t *containers = copy_data(argc, argv);
+    if (containers == NULL) {
+        return EXIT_FAILURE;
+    }
 
-    destroy_data_source(); // If you forget to do this, Valgrind will yell at you a lot.
+    if (mode == FILTER) {
+        if (filter_containers(argc, argv, containers) == INPUT_ERROR) {
+            return EXIT_FAILURE;
+        }
+    }
 
-    // TODO: Process the data as the user wishes and print them to the stdin.
+    else if (mode == CLUSTER || mode == GRAPH) {
+        s_list_t *sites = load_containers_and_sites(containers);
+        if (sites == NULL) {
+            return EXIT_FAILURE;
+        }
 
-    return EXIT_SUCCESS; // May your program be as successful as this macro. Good luck!
+        if (mode == CLUSTER) {
+            print_sites(sites);
+        } else {
+            if (shortest_path(argv, containers, sites) == INPUT_ERROR) {
+                return EXIT_FAILURE;
+            }
+        }
+
+        destroy_sites(sites);
+    } else {
+        print_all_containers(containers);
+    }
+
+    destroy_containers(containers);
+
+    return EXIT_SUCCESS;
+}
+
+bool assess_filter_validation(int return_code, bool *filters, int index)
+{
+    switch (return_code) {
+    case FILTER_USED:
+        filters[index] = true;
+        return true;
+    case INPUT_ERROR:
+        return false;
+    default:
+        return true;
+    }
+}
+
+int filter_containers(int argc, char *argv[], c_list_t *containers)
+{
+    // whether filters are used: waste types, capacity, accessibility
+    bool filters[3] = { false, false, false };
+
+    bool waste_types[6];
+    memset(waste_types, 0, 6 * sizeof(bool));
+    if (!assess_filter_validation(validate_waste_types(argc, argv, waste_types), filters, 0)) {
+        fprintf(stderr, "Invalid waste type filter parameter\n");
+        destroy_containers(containers);
+        return INPUT_ERROR;
+    }
+
+    unsigned int capacity[2];
+    memset(capacity, 0, sizeof(unsigned int) * 2);
+    if (!assess_filter_validation(validate_capacity(argc, argv, capacity), filters, 1)) {
+        fprintf(stderr, "Invalid capacity filter parameter\n");
+        destroy_containers(containers);
+        return INPUT_ERROR;
+    }
+
+    bool public = false;
+    if (!assess_filter_validation(validate_accessibility(argc, argv, &public), filters, 2)) {
+        fprintf(stderr, "Invalid accessibility filter parameter\n");
+        destroy_containers(containers);
+        return INPUT_ERROR;
+    }
+
+    print_filtered_containers(containers, waste_types, capacity, public, filters);
+    return INPUT_OK;
+}
+
+s_list_t *load_containers_and_sites(c_list_t *containers)
+{
+    // both clustering and shortest path need to create sites first
+    s_list_t *sites = assign_sites_to_containers(containers);
+    if (sites == NULL) {
+        fprintf(stderr, "Could not create sites\n");
+        destroy_containers(containers);
+        return NULL;
+    }
+    if (!assign_neighbors_to_sites(containers)) {
+        fprintf(stderr, "Could not link sites together\n");
+        destroy_sites(sites);
+        destroy_containers(containers);
+        return NULL;
+    }
+
+    return sites;
+}
+
+int shortest_path(char *argv[], c_list_t *containers, s_list_t *sites)
+{
+    // on top of sites, shortest path also needs to run dijkstra on the sites graph
+    unsigned int nodes[] = { 0, 0 };
+    // validate command line arguments of the task (syntax only)
+    if (!validate_graph(argv, nodes)) {
+        fprintf(stderr, "Invalid -g argument\n");
+        destroy_sites(sites);
+        destroy_containers(containers);
+        return INPUT_ERROR;
+    }
+
+    // run dijkstra on graph
+    site_t *target = NULL;
+    int result = dijkstra(sites, nodes[0], nodes[1], &target);
+    if (!result) {
+        fprintf(stderr, "Invalid start or target point\n");
+        destroy_sites(sites);
+        destroy_containers(containers);
+        return INPUT_ERROR;
+    }
+
+    unsigned int length = path_length(target);
+
+    // print found path
+    if (!print_dijkstra(target, length)) {
+        fprintf(stderr, "Could not allocate memory for path printing\n");
+        destroy_sites(sites);
+        destroy_containers(containers);
+        return INPUT_ERROR;
+    }
+
+    return INPUT_OK;
+}
+
+c_list_t *copy_data(int argc, char *argv[])
+{
+    // copy data from parser to structures
+
+    // initialize data source
+    if (!init_data_source(argv[argc - 2], argv[argc - 1])) {
+        fprintf(stderr, "Could not initialize files\n");
+        return NULL;
+    }
+
+    // copy containers info from parser
+    c_list_t *containers = load_containers();
+    if (containers == NULL) {
+        fprintf(stderr, "Could not load containers\n");
+        destroy_data_source();
+        return NULL;
+    }
+
+    // copy paths info from parser
+    if (!load_paths(containers)) {
+        fprintf(stderr, "Could not load paths\n");
+        destroy_containers(containers);
+        destroy_data_source();
+        return NULL;
+    }
+
+    // data source no longer needed, can be destroyed
+    destroy_data_source();
+    return containers;
 }

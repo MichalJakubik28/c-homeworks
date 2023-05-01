@@ -1,9 +1,9 @@
 #include "data_source.h"
 
-#include <string.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <string.h>
 
 // Container CSV column header
 #define CONTAINER_COLUMNS_COUNT 9
@@ -101,7 +101,7 @@ static char **split_csv_line(char *line, size_t expected_count)
 {
     assert(line != NULL);
 
-    char **splitted_line = calloc(expected_count + 1, sizeof(char*));
+    char **splitted_line = calloc(expected_count + 1, sizeof(char *));
     if (splitted_line == NULL) {
         return NULL;
     }
@@ -126,8 +126,7 @@ static char **split_csv_line(char *line, size_t expected_count)
 
         strcpy(splitted_line[index], token);
 
-        if (line_length > parsed_length
-                && strchr(line + parsed_length, ',') == line + parsed_length) {
+        if (line_length > parsed_length && strchr(line + parsed_length, ',') == line + parsed_length) {
             token = "";
         } else {
             token = strtok(NULL, ",");
@@ -335,4 +334,3 @@ const char *get_path_distance(size_t line_index)
     }
     return data_source->paths[line_index][PATH_DISTANCE];
 }
-

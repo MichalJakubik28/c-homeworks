@@ -80,8 +80,8 @@ int filter_containers(int argc, char *argv[], c_list_t *containers)
     // whether filters are used: waste types, capacity, accessibility
     bool filters[3] = { false, false, false };
 
-    char waste_types[7];
-    memset(waste_types, 0, 7);
+    bool waste_types[6];
+    memset(waste_types, 0, 6 * sizeof(bool));
     if (!assess_filter_validation(validate_waste_types(argc, argv, waste_types), filters, 0)) {
         fprintf(stderr, "Invalid waste type filter parameter\n");
         destroy_containers(containers);

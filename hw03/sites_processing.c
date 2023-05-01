@@ -38,7 +38,7 @@ s_list_t *assign_sites_to_containers(c_list_t *containers)
             node->container->site = site_node->site;
 
             // initialize site's waste types
-            char *waste_types = calloc(7, sizeof(char));
+            bool *waste_types = calloc(6, sizeof(bool));
             if (waste_types == NULL) {
                 destroy_sites(sites_list);
                 return NULL;

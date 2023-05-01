@@ -101,7 +101,7 @@ bool validate_graph(char *argv[], unsigned int nodes[2])
     return split_and_parse_values(argv[2], nodes, ',');
 }
 
-int validate_waste_types(int argc, char *argv[], char *types)
+int validate_waste_types(int argc, char *argv[], bool *types)
 {
     for (int i = 1; i < argc - 2; i += 2) {
         if (strcmp(argv[i], "-t") == 0) {
@@ -143,15 +143,21 @@ int validate_accessibility(int argc, char *argv[], bool *public)
     return FILTER_NOT_USED;
 }
 
-void add_to_types(char input, char *types)
+void add_to_types(enum waste_types input, bool *types)
 {
-    size_t length = strlen(types);
-    if (strchr(types, input) == NULL) {
-        types[length] = input;
-    }
+    types[input - 1] = true;
+    //    for (int i = 0; i < 6; i++) {
+    //        if (types[i] == input) {
+    //            return;
+    //        }
+    //        if (types[i] == 0) {
+    //            types[i] = input;
+    //            return;
+    //        }
+    //    }
 }
 
-bool parse_types(char *input, char *types)
+bool parse_types(char *input, bool *types)
 {
     for (unsigned int i = 0; i < strlen(input); i++) {
         switch (input[i]) {
@@ -161,7 +167,7 @@ bool parse_types(char *input, char *types)
         case 'G':
         case 'C':
         case 'T':
-            add_to_types(input[i], types);
+            add_to_types(char_to_enum(input[i]), types);
             break;
         default:
             return false;
@@ -209,4 +215,44 @@ bool parse_accessibility(char *input, bool *public)
     }
 
     return false;
+}
+
+int char_to_enum(char input)
+{
+    switch (input) {
+    case 'A':
+        return PLASTICS_AND_ALUMINIUM;
+    case 'P':
+        return PAPER;
+    case 'T':
+        return TEXTILE;
+    case 'C':
+        return COLORED_GLASS;
+    case 'G':
+        return CLEAR_GLASS;
+    case 'B':
+        return BIODEGRADABLE_WASTE;
+    default:
+        return -1;
+    }
+}
+
+char enum_to_char(char input)
+{
+    switch (input) {
+    case PLASTICS_AND_ALUMINIUM:
+        return 'A';
+    case PAPER:
+        return 'P';
+    case TEXTILE:
+        return 'T';
+    case COLORED_GLASS:
+        return 'C';
+    case CLEAR_GLASS:
+        return 'G';
+    case BIODEGRADABLE_WASTE:
+        return 'B';
+    default:
+        return 'X';
+    }
 }

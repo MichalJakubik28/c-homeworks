@@ -9,10 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 
-bool filter_waste_type(container_t *container1, bool filter_used, char waste_types[7])
+bool filter_waste_type(container_t *container1, bool filter_used, const bool waste_types[6])
 {
     assert(container1 != NULL);
-    return !filter_used || strchr(waste_types, container1->waste_type) != NULL;
+    return !filter_used || waste_types[container1->waste_type - 1];
 }
 
 bool filter_capacity(container_t *container1, bool filter_used, const unsigned int capacity[2])
@@ -59,20 +59,20 @@ void print_container(container_t *container1)
     putchar('\n');
 }
 
-char *waste_to_long_form(char letter)
+char *waste_to_long_form(enum waste_types letter)
 {
     switch (letter) {
-    case 'A':
+    case PLASTICS_AND_ALUMINIUM:
         return "Plastics and Aluminium";
-    case 'P':
+    case PAPER:
         return "Paper";
-    case 'B':
+    case BIODEGRADABLE_WASTE:
         return "Biodegradable waste";
-    case 'G':
+    case CLEAR_GLASS:
         return "Clear glass";
-    case 'C':
+    case COLORED_GLASS:
         return "Colored glass";
-    case 'T':
+    case TEXTILE:
         return "Textile";
     default:
         return NULL;
@@ -89,7 +89,7 @@ void print_all_containers(c_list_t *containers)
     }
 }
 
-void print_filtered_containers(c_list_t *containers, char waste_types[7], unsigned int capacity[2], bool public, bool filters[3])
+void print_filtered_containers(c_list_t *containers, bool waste_types[6], unsigned int capacity[2], bool public, bool filters[3])
 {
     c_node_t *node = containers->head;
 
@@ -124,12 +124,11 @@ void print_sites(s_list_t *sites)
     }
 }
 
-void print_waste_types(char *waste_types)
+void print_waste_types(const bool *waste_types)
 {
-    const char *sorted_types = "APBGCT";
     for (int i = 0; i < 6; i++) {
-        if (strchr(waste_types, sorted_types[i])) {
-            putchar(sorted_types[i]);
+        if (waste_types[i] != 0) {
+            putchar(enum_to_char((enum waste_types)(i + 1)));
         }
     }
 }

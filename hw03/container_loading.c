@@ -1,6 +1,7 @@
 #include "container_loading.h"
 
 #include "data_source.h"
+#include "input_handling.h"
 #include "linked_list_utils.h"
 
 #include <limits.h>
@@ -76,27 +77,27 @@ bool parse_container_y(const char *y, container_t *container)
 bool parse_container_waste(const char *type, container_t *container)
 {
     if (strcmp(type, "Plastics and Aluminium") == 0) {
-        container->waste_type = 'A';
+        container->waste_type = char_to_enum('A');
         return true;
     }
     if (strcmp(type, "Paper") == 0) {
-        container->waste_type = 'P';
+        container->waste_type = char_to_enum('P');
         return true;
     }
     if (strcmp(type, "Biodegradable waste") == 0) {
-        container->waste_type = 'B';
+        container->waste_type = char_to_enum('B');
         return true;
     }
     if (strcmp(type, "Clear glass") == 0) {
-        container->waste_type = 'G';
+        container->waste_type = char_to_enum('G');
         return true;
     }
     if (strcmp(type, "Colored glass") == 0) {
-        container->waste_type = 'C';
+        container->waste_type = char_to_enum('C');
         return true;
     }
     if (strcmp(type, "Textile") == 0) {
-        container->waste_type = 'T';
+        container->waste_type = char_to_enum('T');
         return true;
     }
     return false;

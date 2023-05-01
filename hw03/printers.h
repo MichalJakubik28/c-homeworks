@@ -12,7 +12,7 @@
  *
  * @retval true if container passes the filtering criteria, else false
  */
-bool filter_waste_type(container_t *container1, bool filter_used, char waste_types[7]);
+bool filter_waste_type(container_t *container1, bool filter_used, const bool waste_types[6]);
 
 /**
  * @brief Applies capacity filter on a container if it's used.
@@ -49,7 +49,7 @@ void print_container(container_t *container1);
  * @param letter waste type initial
  * @retval waste type string
  */
-char *waste_to_long_form(char letter);
+char *waste_to_long_form(enum waste_types letter);
 
 /**
  * @brief Prints info about all containers.
@@ -67,7 +67,7 @@ void print_all_containers(c_list_t *containers);
  * @param public accessibility of containers
  * @param filters array of flags indicating which filters are to be used
  */
-void print_filtered_containers(c_list_t *containers, char waste_types[7], unsigned int capacity[2], bool public, bool filters[3]);
+void print_filtered_containers(c_list_t *containers, bool waste_types[6], unsigned int capacity[2], bool public, bool filters[3]);
 
 /**
  * @brief Prints info about all sites.
@@ -81,7 +81,7 @@ void print_sites(s_list_t *sites);
  *
  * @param waste_types waste types to be sorted and printed
  */
-void print_waste_types(char *waste_types);
+void print_waste_types(const bool *waste_types);
 
 /**
  * @brief Prints IDs of site neighbors.

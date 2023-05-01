@@ -2,6 +2,7 @@
 #define LINKED_LIST_UTILS_H
 
 #include "container_loading.h"
+#include "input_handling.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -89,7 +90,7 @@ struct site
     unsigned int id;
     double x;
     double y;
-    char *waste_types;
+    bool *waste_types;
     sn_list_t *neighbors;
     site_t *predecessor;
     unsigned int shortest_distance;
@@ -100,7 +101,7 @@ struct container
 {
     unsigned int id;
     double x, y;
-    char waste_type;
+    enum waste_types waste_type;
     unsigned int capacity;
     char *name;
     char *street;

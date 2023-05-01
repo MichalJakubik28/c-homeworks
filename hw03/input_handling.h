@@ -12,6 +12,16 @@
 #define FILTER_NOT_USED 0
 #define FILTER_USED 1
 
+enum waste_types
+{
+    PLASTICS_AND_ALUMINIUM = 1,
+    PAPER = 2,
+    BIODEGRADABLE_WASTE = 3,
+    CLEAR_GLASS = 4,
+    COLORED_GLASS = 5,
+    TEXTILE = 6
+};
+
 /**
  * @brief Parses accessibility string from command line.
  *
@@ -38,7 +48,7 @@ bool split_and_parse_values(char *input, unsigned int values[2], int delimiter);
  * @param types pointer to a place where parsed types should be stored
  * @retval true if input could be parsed, else false
  */
-bool parse_types(char *input, char *types);
+bool parse_types(char *input, bool *types);
 
 /**
  * @brief Validates shortest path input parameters from command line.
@@ -89,7 +99,7 @@ int validate_capacity(int argc, char *argv[], unsigned int capacity[2]);
  * @retval integer macro value based on whether filter is used or not or
  * INPUT_ERROR if conflicting or invalid command line input was received
  */
-int validate_waste_types(int argc, char *argv[], char *types);
+int validate_waste_types(int argc, char *argv[], bool *types);
 
 /**
  * @brief Adds waste type to an array of waste types.
@@ -98,6 +108,10 @@ int validate_waste_types(int argc, char *argv[], char *types);
  * @param types array of waste types
  *
  */
-void add_to_types(char input, char *types);
+void add_to_types(enum waste_types input, bool *types);
+
+int char_to_enum(char input);
+
+char enum_to_char(char input);
 
 #endif //INPUT_HANDLING_H
